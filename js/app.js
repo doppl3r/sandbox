@@ -7,35 +7,40 @@ class App {
         this.renderer.outputEncoding = THREE.sRGBEncoding; // Accurate colors
         this.canvas = this.renderer.domElement;
         this.clock = new THREE.Clock();
-        this.delta = 0;
-        this.tick = 15; // Calculations per second
-        this.interval = 1 / this.tick;
+        this.deltaSum = 0;
+        this.tickRate = 2; // Calculations per second
+        this.interval = 1 / this.tickRate;
 
         // Update camera options
         this.camera.position.set(0, -10, 0);
         this.camera.rotation.set(90 * Math.PI / 180, 0, 0); // Rotate up 90°
 
-        // Add update loop
-        this.renderer.setAnimationLoop(function(time) { _this.render(time); });
+        // Add update loop (threejs built-in alternative to requestAnimationFrame)
+        this.renderer.setAnimationLoop(function() { _this.render(); });
     }
 
     // Initialize application
-    render(time) {
-        this.delta += this.clock.getDelta();
+    render() {
+        var delta = this.clock.getDelta()
+        this.deltaSum += delta;
 
-        // Update engine on a less recurring interval (improves performance)
-        if (this.delta > this.interval) {
-            this.update(this.delta);
-            this.delta = this.delta % this.interval;
+        // Update engine on a lessor interval (improves performance)
+        if (this.deltaSum > this.interval) {
+            this.updatePhysics(delta);
+            this.deltaSum = this.deltaSum % this.interval;
         }
-
-        // Update renderer
+        
+        // Refresh renderer
+        this.updateRender(delta);
         this.renderer.render(this.scene, this.camera);
     }
 
-    // Update physics
-    update(delta) {
-        //console.log(delta);
+    updatePhysics(delta) {
+        
+    }
+
+    updateRender(delta) {
+        
     }
 
     pause(play = false) {
