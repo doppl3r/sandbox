@@ -16,31 +16,31 @@ class App {
         this.camera.rotation.set(90 * Math.PI / 180, 0, 0); // Rotate up 90°
 
         // Add update loop (threejs built-in alternative to requestAnimationFrame)
-        this.renderer.setAnimationLoop(function() { _this.render(); });
+        this.renderer.setAnimationLoop(function() { _this.update(); });
     }
 
     // Initialize application
-    render() {
+    update() {
         var delta = this.clock.getDelta()
         this.deltaSum += delta;
 
         // Update engine on a lessor interval (improves performance)
         if (this.deltaSum > this.interval) {
-            this.updatePhysics(delta);
-            this.deltaSum = this.deltaSum % this.interval;
+            this.updateEngine(this.deltaSum);
+            this.deltaSum %= this.interval; // reset with remainder
         }
         
         // Refresh renderer
         this.updateRender(delta);
-        this.renderer.render(this.scene, this.camera);
     }
 
-    updatePhysics(delta) {
-        
+    updateEngine(delta) {
+        //console.log(delta);
     }
 
     updateRender(delta) {
-        
+        //console.log(delta);
+        this.renderer.render(this.scene, this.camera);
     }
 
     pause(play = false) {
