@@ -21,25 +21,26 @@ class App {
 
     // Initialize application
     update() {
-        var delta = this.clock.getDelta()
-        this.deltaSum += delta;
+        var delta = this.clock.getDelta();
+        var alpha = this.deltaSum / this.interval; // Interpolation factor
 
+        // Refresh renderer
+        this.updateRender(delta, alpha);
+        
         // Update engine on a lessor interval (improves performance)
+        this.deltaSum += delta;
         if (this.deltaSum > this.interval) {
             this.updateEngine(this.deltaSum);
             this.deltaSum %= this.interval; // reset with remainder
         }
-        
-        // Refresh renderer
-        this.updateRender(delta);
     }
 
     updateEngine(delta) {
         //console.log(delta);
     }
 
-    updateRender(delta) {
-        //console.log(delta);
+    updateRender(delta, alpha) {
+        console.log(delta, alpha);
         this.renderer.render(this.scene, this.camera);
     }
 
