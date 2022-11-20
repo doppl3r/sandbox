@@ -1,10 +1,8 @@
-
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import './css/styles.css';
-//const THREE = require('three');
+import './scss/app.scss';
 
-console.log(THREE, 'pizza 2');
+console.log(THREE, 'pizza');
 
 class App {
     constructor() {
@@ -20,11 +18,10 @@ class App {
         this.tickRate = 2; // Calculations per second
         this.interval = 1 / this.tickRate;
 
-        console.log(window.innerWidth, window.innerHeight);
-
         // Update camera options
         this.camera.position.set(0, -10, 0);
         this.camera.rotation.set(90 * Math.PI / 180, 0, 0); // Rotate up 90°
+        this.resizeWindow();
 
         // Append to canvas
         document.body.appendChild(this.canvas);
