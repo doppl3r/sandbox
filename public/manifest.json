@@ -5,9 +5,9 @@
     "manifest_version": 3,
     "author": "Doppler Creative",
     "icons": {
-        "16": "img/png/16.png",
-        "48": "img/png/48.png",
-        "128": "img/png/128.png"
+        "16": "img/png/icon16.png",
+        "48": "img/png/icon48.png",
+        "128": "img/png/icon128.png"
     },
     "action": {
         "default_popup": "index.html"
