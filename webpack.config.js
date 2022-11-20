@@ -5,15 +5,15 @@ module.exports = {
     entry: {
         app: './src/js/app.js'
     },
-    mode: 'development',
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: './js/[name].js',
+        clean: true
     },
     module: {
         rules: [
             {
-                test: /\.js?$/,
+                test: /\.jsx?$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader'
