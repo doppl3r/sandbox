@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import './scss/app.scss';
+import '../scss/app.scss';
 
 console.log(THREE, 'pizza');
 
