@@ -1,7 +1,16 @@
+
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+import './css/styles.css';
+//const THREE = require('three');
+
+console.log(THREE, 'pizza 2');
+
 class App {
     constructor() {
         var _this = this;
         this.scene = new THREE.Scene();
+        this.world = new CANNON.World();
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.outputEncoding = THREE.sRGBEncoding; // Accurate colors
@@ -11,9 +20,14 @@ class App {
         this.tickRate = 2; // Calculations per second
         this.interval = 1 / this.tickRate;
 
+        console.log(window.innerWidth, window.innerHeight);
+
         // Update camera options
         this.camera.position.set(0, -10, 0);
         this.camera.rotation.set(90 * Math.PI / 180, 0, 0); // Rotate up 90°
+
+        // Append to canvas
+        document.body.appendChild(this.canvas);
 
         // Add update loop (threejs built-in alternative to requestAnimationFrame)
         this.renderer.setAnimationLoop(function() { _this.update(); });
@@ -40,7 +54,7 @@ class App {
     }
 
     updateRender(delta, alpha) {
-        console.log(delta, alpha);
+        //console.log(delta, alpha);
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -62,7 +76,7 @@ class App {
         this.renderer.setSize(width, height);
     }
 }
-var app = new App();
+window.app = new App();
 
 // Add event listeners
 window.addEventListener('resize', function(e) { app.resizeWindow(e); });
