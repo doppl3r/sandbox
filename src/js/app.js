@@ -10,7 +10,6 @@ class App {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
-        //this.renderer.outputEncoding = sRGBEncoding; // Accurate colors
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;
@@ -39,22 +38,30 @@ class App {
         // Begin FPS counter
         this.stats.begin();
 
+        // Update time factors
         var delta = this.clock.getDelta();
         var alpha = this.deltaSum / this.interval; // Interpolation factor
-
-        // Refresh renderer
-        this.test.update(alpha, this.interval);
-        this.refresh();
         
         // Update engine on a lessor interval (improves performance)
         this.deltaSum += delta;
         if (this.deltaSum > this.interval) {
-            this.test.update(null, this.interval); // Update without alpha value
             this.deltaSum %= this.interval; // reset with remainder
+            this.updatePhysics(this.interval);
+            alpha = 1; // Request new position from physics
         }
 
-        // End FPS counter
-        this.stats.end();
+        // Refresh renderer
+        this.updateRender(alpha, this.interval);
+    }
+
+    updatePhysics(interval) {
+        this.test.updatePhysics(interval); // Update without alpha value
+    }
+
+    updateRender(alpha) {
+        this.test.updateRender(alpha);
+        this.renderer.render(this.scene, this.camera);
+        this.stats.end(); // End FPS counter
     }
 
     pause(play = false) {
@@ -65,10 +72,6 @@ class App {
     resume(play = true) {
         this.play = play;
         this.clock.start();
-    }
-
-    refresh() {
-        this.renderer.render(this.scene, this.camera);
     }
 
     resizeWindow(e) {

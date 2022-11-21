@@ -35,14 +35,11 @@ class Test extends Group {
         this.world.addBody(plane.body);
     }
 
-    update(alpha, interval) {
-        if (alpha) {
+    updatePhysics(interval) {
+        this.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
+    }
 
-        }
-        else {
-            this.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
-        }
-
+    updateRender(alpha) {
         // Loop through all child objects
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];

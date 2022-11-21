@@ -25,15 +25,24 @@ class Cube extends Group {
         this.body = new Body({ mass: options.mass, shape: shape });
 
         // Declare prev/next position and rotation for interpolation
-        this.positionPrev = this.positionNext = this.position.clone();
-        this.quaternionPrev = this.quaternionNext = this.quaternion.clone();
+        this.positionPrev = this.position.clone();
+        this.positionNext = this.position.clone();
+        this.quaternionPrev = this.quaternion.clone();
+        this.quaternionNext = this.quaternion.clone();
 
         // Enable interpolation
         this.interpolate = true;
     }
 
     update(alpha) {
-        if (alpha) {
+        if (alpha == 1) {
+            // Update new target position
+            this.positionPrev = this.position.clone();
+            this.positionNext = this.body.position.clone();
+            this.quaternionPrev = this.quaternion.clone();
+            this.quaternionNext = this.body.quaternion.clone();
+        }
+        else {
             if (this.interpolate == true) {
                 // Interpolate position
                 this.position.x = this.positionPrev.x + (this.positionNext.x - this.positionPrev.x) * alpha;
@@ -57,22 +66,19 @@ class Cube extends Group {
                 this.quaternion.w = this.quaternionNext.w;
             }
         }
-        else {
-            // Update new target position
-            this.positionPrev = this.position.clone();
-            this.positionNext = this.body.position.clone();
-            this.quaternionPrev = this.quaternion.clone();
-            this.quaternionNext = this.body.quaternion.clone();
-        }
     }
 
     setPosition(x, y, z) {
         this.position.set(x, y, z);
+        this.positionPrev.set(x, y, z);
+        this.positionNext.set(x, y, z);
         this.body.position.set(x, y, z);
     }
 
     setRotation(x, y, z) {
         this.quaternion.set(x, y, z);
+        this.quaternionPrev.set(x, y, z);
+        this.quaternionNext.set(x, y, z);
         this.body.quaternion.set(x, y, z);
     }
 }
