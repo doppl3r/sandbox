@@ -1,19 +1,20 @@
 import { Scene, PerspectiveCamera, WebGLRenderer, sRGBEncoding, Clock } from 'three';
-import { World } from 'cannon-es';
+import { Test } from './test.js';
+import Stats from './stats.js';
 import '../scss/app.scss';
 
 class App {
     constructor() {
         var _this = this;
+        this.stats = new Stats();
         this.scene = new Scene();
-        this.world = new World();
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.outputEncoding = sRGBEncoding; // Accurate colors
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;
-        this.tickRate = 2; // Calculations per second
+        this.tickRate = 30; // Calculations per second
         this.interval = 1 / this.tickRate;
 
         // Update camera options
@@ -23,6 +24,11 @@ class App {
 
         // Append to canvas
         document.body.appendChild(this.canvas);
+        document.body.appendChild(this.stats.dom);
+
+        // Add test
+        this.test = new Test();
+        this.scene.add(this.test); // Add 3D object to scene
 
         // Add update loop (threejs built-in alternative to requestAnimationFrame)
         this.renderer.setAnimationLoop(function() { _this.update(); });
@@ -30,27 +36,24 @@ class App {
 
     // Initialize application
     update() {
+        this.stats.begin();
+
         var delta = this.clock.getDelta();
         var alpha = this.deltaSum / this.interval; // Interpolation factor
-
-        // Refresh renderer
-        this.updateRender(delta, alpha);
         
         // Update engine on a lessor interval (improves performance)
         this.deltaSum += delta;
         if (this.deltaSum > this.interval) {
-            this.updateEngine(this.deltaSum);
+            this.test.update(null, this.interval); // Update without alpha value
             this.deltaSum %= this.interval; // reset with remainder
+            return false;
         }
-    }
 
-    updateEngine(delta) {
-        //console.log(delta);
-    }
+        // Refresh renderer
+        this.test.update(alpha, this.interval);
+        this.refresh();
 
-    updateRender(delta, alpha) {
-        //console.log(delta, alpha);
-        this.renderer.render(this.scene, this.camera);
+        this.stats.end();
     }
 
     pause(play = false) {
@@ -61,6 +64,10 @@ class App {
     resume(play = true) {
         this.play = play;
         this.clock.start();
+    }
+
+    refresh() {
+        this.renderer.render(this.scene, this.camera);
     }
 
     resizeWindow(e) {
