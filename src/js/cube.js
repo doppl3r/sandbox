@@ -27,26 +27,40 @@ class Cube extends Group {
         // Declare prev/next position and rotation for interpolation
         this.positionPrev = this.positionNext = this.position.clone();
         this.quaternionPrev = this.quaternionNext = this.quaternion.clone();
+
+        // Enable interpolation
+        this.interpolate = true;
     }
 
     update(alpha, interval) {
         if (alpha) {
-            // Interpolate position
-            this.position.x = this.positionPrev.x + (this.positionNext.x - this.positionPrev.x) * alpha;
-            this.position.y = this.positionPrev.y + (this.positionNext.y - this.positionPrev.y) * alpha;
-            this.position.z = this.positionPrev.z + (this.positionNext.z - this.positionPrev.z) * alpha;
+            if (this.interpolate == true) {
+                // Interpolate position
+                this.position.x = this.positionPrev.x + (this.positionNext.x - this.positionPrev.x) * alpha;
+                this.position.y = this.positionPrev.y + (this.positionNext.y - this.positionPrev.y) * alpha;
+                this.position.z = this.positionPrev.z + (this.positionNext.z - this.positionPrev.z) * alpha;
 
-            // Interpolate quaternion (rotation)
-            this.quaternion.x = this.quaternionPrev.x + (this.quaternionNext.x - this.quaternionPrev.x) * alpha;
-            this.quaternion.y = this.quaternionPrev.y + (this.quaternionNext.y - this.quaternionPrev.y) * alpha;
-            this.quaternion.z = this.quaternionPrev.z + (this.quaternionNext.z - this.quaternionPrev.z) * alpha;
-            this.quaternion.w = this.quaternionPrev.w + (this.quaternionNext.w - this.quaternionPrev.w) * alpha;
+                // Interpolate quaternion (rotation)
+                this.quaternion.x = this.quaternionPrev.x + (this.quaternionNext.x - this.quaternionPrev.x) * alpha;
+                this.quaternion.y = this.quaternionPrev.y + (this.quaternionNext.y - this.quaternionPrev.y) * alpha;
+                this.quaternion.z = this.quaternionPrev.z + (this.quaternionNext.z - this.quaternionPrev.z) * alpha;
+                this.quaternion.w = this.quaternionPrev.w + (this.quaternionNext.w - this.quaternionPrev.w) * alpha;
+            }
+            else {
+                this.position.x = this.positionNext.x;
+                this.position.y = this.positionNext.y;
+                this.position.z = this.positionNext.z;
+    
+                this.quaternion.x = this.quaternionNext.x;
+                this.quaternion.y = this.quaternionNext.y;
+                this.quaternion.z = this.quaternionNext.z;
+                this.quaternion.w = this.quaternionNext.w;
+            }
         }
         else {
             // Update new target position
             this.positionPrev = this.position.clone();
             this.positionNext = this.body.position.clone();
-
             this.quaternionPrev = this.quaternion.clone();
             this.quaternionNext = this.body.quaternion.clone();
         }

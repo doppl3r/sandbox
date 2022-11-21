@@ -17,7 +17,7 @@ class Test extends Group {
         this.add(hemisphere);
 
         // Add cubes
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < 100; i++) {
             var range = 5;
             var x = -range + Math.random() * (range - -range);
             var y = -range + Math.random() * (range - -range);
