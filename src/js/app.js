@@ -1,19 +1,17 @@
-import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
+import { Scene, PerspectiveCamera, WebGLRenderer, sRGBEncoding, Clock } from 'three';
+import { World } from 'cannon-es';
 import '../scss/app.scss';
-
-console.log(THREE, 'pizza');
 
 class App {
     constructor() {
         var _this = this;
-        this.scene = new THREE.Scene();
-        this.world = new CANNON.World();
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.outputEncoding = THREE.sRGBEncoding; // Accurate colors
+        this.scene = new Scene();
+        this.world = new World();
+        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.outputEncoding = sRGBEncoding; // Accurate colors
         this.canvas = this.renderer.domElement;
-        this.clock = new THREE.Clock();
+        this.clock = new Clock();
         this.deltaSum = 0;
         this.tickRate = 2; // Calculations per second
         this.interval = 1 / this.tickRate;
