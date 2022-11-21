@@ -6,17 +6,16 @@ class Plane extends Group {
         super();
 
         // Merge options
-        options = Object.assign({ mass: 1, scale: { x: 1, y: 1, z: 1 }}, options);
         options = Object.assign({
             type: Body.STATIC,
-            scale: { x: 1, y: 1, z: 1 },
+            scale: { x: 10, y: 10 },
             position: { x: 0, y: 0, z: 0 },
             rotation: { x: 0, y: 0, z: 0 }
         }, options);
 
         // Initialize default plane
-        var geometry = new PlaneGeometry(5, 5);
-        var material = new MeshStandardMaterial({ color: 0x620460, side: DoubleSide });
+        var geometry = new PlaneGeometry(options.scale.x, options.scale.y);
+        var material = new MeshStandardMaterial({ color: '#000000', side: DoubleSide });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
 

@@ -15,7 +15,7 @@ class Cube extends Group {
 
         // Initialize default cube mesh
         var geometry = new BoxGeometry(options.scale.x, options.scale.y, options.scale.z);
-        var material = new MeshStandardMaterial({ color: '#dc265a' });
+        var material = new MeshStandardMaterial({ color: '#ffffff' });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
 
@@ -34,13 +34,16 @@ class Cube extends Group {
         this.interpolate = true;
     }
 
-    update(alpha) {
+    update(alpha, debug) {
         if (alpha == 1) {
             // Update new target position
             this.positionPrev = this.position.clone();
             this.positionNext = this.body.position.clone();
             this.quaternionPrev = this.quaternion.clone();
             this.quaternionNext = this.body.quaternion.clone();
+
+            // Update debugger
+            debug?.update();
         }
         else {
             if (this.interpolate == true) {

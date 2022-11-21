@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, sRGBEncoding, Clock } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Clock, Vector3 } from 'three';
 import { Test } from './test.js';
 import Stats from './stats.js';
 import '../scss/app.scss';
@@ -9,16 +9,17 @@ class App {
         this.stats = new Stats();
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;
-        this.tickRate = 15; // Calculations per second
+        this.tickRate = 10; // Calculations per second
         this.interval = 1 / this.tickRate;
 
         // Update camera options
-        this.camera.position.set(0, -10, 0);
-        this.camera.rotation.set(90 * Math.PI / 180, 0, 0); // Rotate up 90°
+        this.camera.position.set(10, -10, 10);
+        this.camera.up = new Vector3(0, 0, 1);
+        this.camera.lookAt(new Vector3(0, 0, -3));
         this.resizeWindow();
 
         // Append to canvas
