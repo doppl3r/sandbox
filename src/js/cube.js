@@ -32,7 +32,7 @@ class Cube extends Group {
         this.interpolate = true;
     }
 
-    update(alpha, interval) {
+    update(alpha) {
         if (alpha) {
             if (this.interpolate == true) {
                 // Interpolate position

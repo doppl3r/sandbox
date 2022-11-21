@@ -14,7 +14,7 @@ class App {
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;
-        this.tickRate = 30; // Calculations per second
+        this.tickRate = 15; // Calculations per second
         this.interval = 1 / this.tickRate;
 
         // Update camera options
@@ -36,23 +36,24 @@ class App {
 
     // Initialize application
     update() {
+        // Begin FPS counter
         this.stats.begin();
 
         var delta = this.clock.getDelta();
         var alpha = this.deltaSum / this.interval; // Interpolation factor
+
+        // Refresh renderer
+        this.test.update(alpha, this.interval);
+        this.refresh();
         
         // Update engine on a lessor interval (improves performance)
         this.deltaSum += delta;
         if (this.deltaSum > this.interval) {
             this.test.update(null, this.interval); // Update without alpha value
             this.deltaSum %= this.interval; // reset with remainder
-            return false;
         }
 
-        // Refresh renderer
-        this.test.update(alpha, this.interval);
-        this.refresh();
-
+        // End FPS counter
         this.stats.end();
     }
 

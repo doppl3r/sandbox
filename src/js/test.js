@@ -49,7 +49,7 @@ class Test extends Group {
 
             // Update 3D object to rigid body position
             if (child?.body?.type == 1) {
-                child.update(alpha, interval);
+                child.update(alpha);
             }
         }
     }
