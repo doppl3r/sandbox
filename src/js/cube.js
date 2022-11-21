@@ -1,4 +1,4 @@
-import { BoxGeometry, Group, MeshBasicMaterial, Mesh } from 'three';
+import { BoxGeometry, Group, MeshStandardMaterial, Mesh } from 'three';
 import { Body, Box, Vec3 } from 'cannon-es';
 
 class Cube extends Group {
@@ -15,7 +15,7 @@ class Cube extends Group {
 
         // Initialize default cube mesh
         var geometry = new BoxGeometry(options.scale.x, options.scale.y, options.scale.z);
-        var material = new MeshBasicMaterial({ color: '#dc265a' });
+        var material = new MeshStandardMaterial({ color: '#dc265a' });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
 

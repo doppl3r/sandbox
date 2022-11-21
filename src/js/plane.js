@@ -1,4 +1,4 @@
-import { DoubleSide, Group, MeshBasicMaterial, Mesh, PlaneGeometry } from 'three';
+import { DoubleSide, Group, MeshStandardMaterial, Mesh, PlaneGeometry } from 'three';
 import { Body, Plane as PlaneES } from 'cannon-es';
 
 class Plane extends Group {
@@ -16,7 +16,7 @@ class Plane extends Group {
 
         // Initialize default plane
         var geometry = new PlaneGeometry(5, 5);
-        var material = new MeshBasicMaterial({ color: 0x620460, side: DoubleSide });
+        var material = new MeshStandardMaterial({ color: 0x620460, side: DoubleSide });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
 

@@ -10,7 +10,7 @@ class App {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.outputEncoding = sRGBEncoding; // Accurate colors
+        //this.renderer.outputEncoding = sRGBEncoding; // Accurate colors
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;

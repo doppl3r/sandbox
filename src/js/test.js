@@ -1,4 +1,4 @@
-import { Group } from 'three';
+import { Group, HemisphereLight } from 'three';
 import { World, Vec3 } from 'cannon-es';
 import { Cube } from './cube';
 import { Plane } from './plane';
@@ -11,6 +11,11 @@ class Test extends Group {
     }
 
     init() {
+        // Add light
+        var hemisphere = new HemisphereLight('#ffffff', '#333333', 1);
+        hemisphere.position.set(0, -2, 2);
+        this.add(hemisphere);
+
         // Add cubes
         for (var i = 0; i < 20; i++) {
             var range = 5;
@@ -43,7 +48,7 @@ class Test extends Group {
             var child = this.children[i];
 
             // Update 3D object to rigid body position
-            if (child.body.type == 1) {
+            if (child?.body?.type == 1) {
                 child.update(alpha, interval);
             }
         }
