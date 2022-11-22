@@ -1,5 +1,5 @@
 import { BoxGeometry, Group, MeshNormalMaterial, Mesh } from 'three';
-import { Body, Box, Vec3, Quaternion } from 'cannon-es';
+import { Body, Box, Vec3 } from 'cannon-es';
 
 class Cube extends Group {
     constructor(options) {

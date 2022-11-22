@@ -35,7 +35,7 @@ class Test extends Group {
         // Add plane
         var plane = new Plane();
         plane.setPosition(0, 0, -2);
-        plane.setRotation(0, 0, 0);
+        plane.setRotation(0, 0.75, 0.75);
         this.add(plane);
         this.world.addBody(plane.body);
     }

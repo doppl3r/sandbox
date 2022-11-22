@@ -15,7 +15,7 @@ class Plane extends Group {
 
         // Initialize default plane
         var geometry = new PlaneGeometry(options.scale.x, options.scale.y);
-        var material = new MeshStandardMaterial({ color: '#000000', side: DoubleSide });
+        var material = new MeshStandardMaterial({ side: DoubleSide, transparent: true, opacity: 0 });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
 

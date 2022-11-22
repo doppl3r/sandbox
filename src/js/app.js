@@ -24,7 +24,7 @@ class App {
 
         // Append to canvas
         document.body.appendChild(this.canvas);
-        //document.body.appendChild(this.stats.dom);
+        document.body.appendChild(this.stats.dom);
 
         // Add test
         this.test = new Test();

@@ -1,4 +1,4 @@
-import { Group, MeshNormalMaterial, Mesh, SphereGeometry, Quaternion } from 'three';
+import { Group, MeshNormalMaterial, Mesh, SphereGeometry } from 'three';
 import { Body, Sphere as SphereES } from 'cannon-es';
 
 class Sphere extends Group {
