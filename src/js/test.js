@@ -26,7 +26,7 @@ class Test extends Group {
             var y = -range + Math.random() * (range - -range);
             var z = -range + Math.random() * (range - -range);
             var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
-            if (i % 2 == 0) object = new Sphere({ radius: 2 });
+            if (i % 2 == 0) object = new Sphere({ radius: 1 });
             object.setPosition(x, y, 10 + z);
             this.add(object); // Add 3D object to scene
             this.world.addBody(object.body); // Add 
@@ -35,7 +35,7 @@ class Test extends Group {
         // Add plane
         var plane = new Plane();
         plane.setPosition(0, 0, -2);
-        plane.setRotation(0, 0.75, 0.75);
+        plane.setRotation(0, 0, 0);
         this.add(plane);
         this.world.addBody(plane.body);
     }

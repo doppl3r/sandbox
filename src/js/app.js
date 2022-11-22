@@ -13,7 +13,7 @@ class App {
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;
-        this.tickRate = 5; // Calculations per second
+        this.tickRate = 10; // Calculations per second
         this.interval = 1 / this.tickRate;
 
         // Update camera options
