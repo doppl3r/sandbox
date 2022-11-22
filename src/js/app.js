@@ -12,9 +12,12 @@ class App {
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
-        this.deltaSum = 0;
-        this.tickRate = 10; // Calculations per second
-        this.interval = 1 / this.tickRate;
+        this.physicsDeltaSum = 0;
+        this.physicsTickRate = 10; // Calculations per second
+        this.physicsInterval = 1 / this.physicsTickRate;
+        this.renderDeltaSum = 0;
+        this.renderTickRate = -1; // Ex: 24 = 24fps, -1 = unlimited
+        this.renderInterval = 1 / this.renderTickRate;
 
         // Update camera options
         this.camera.position.set(10, -10, 10);
@@ -41,18 +44,22 @@ class App {
 
         // Update time factors
         var delta = this.clock.getDelta();
-        var alpha = this.deltaSum / this.interval; // Interpolation factor
+        var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
         
         // Update engine on a lessor interval (improves performance)
-        this.deltaSum += delta;
-        if (this.deltaSum > this.interval) {
-            this.deltaSum %= this.interval; // reset with remainder
-            this.updatePhysics(this.interval);
+        this.physicsDeltaSum += delta;
+        if (this.physicsDeltaSum > this.physicsInterval) {
+            this.physicsDeltaSum %= this.physicsInterval; // reset with remainder
+            this.updatePhysics(this.physicsInterval);
             alpha = 1; // Request new position from physics
         }
 
-        // Refresh renderer
-        this.updateRender(alpha, this.interval);
+        // Refresh renderer on a higher (or unlimited) interval
+        this.renderDeltaSum += delta;
+        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate == -1) {
+            this.renderDeltaSum %= this.renderInterval;
+            this.updateRender(alpha);
+        }
     }
 
     updatePhysics(interval) {

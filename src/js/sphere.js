@@ -31,8 +31,11 @@ class Sphere extends Group {
 
     update(alpha, debug) {
         if (alpha == 1) {
-            // Update debugger
-            debug?.update();
+            debug?.update(); // Update debugger
+
+            // Set object position to previous body to capture missing frame
+            this.position.copy(this.body.previousPosition);
+            this.quaternion.copy(this.body.previousQuaternion);
         }
         else {
             this.lerpPositions((this.interpolate == true) ? alpha : 1);
