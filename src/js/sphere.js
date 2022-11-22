@@ -1,27 +1,28 @@
-import { BoxGeometry, Group, MeshNormalMaterial, Mesh } from 'three';
-import { Body, Box, Vec3 } from 'cannon-es';
+import { Group, MeshNormalMaterial, Mesh, SphereGeometry } from 'three';
+import { Body, Sphere as SphereES } from 'cannon-es';
 
-class Cube extends Group {
+class Sphere extends Group {
     constructor(options) {
         super();
 
         // Merge options
         options = Object.assign({
             mass: 1,
-            scale: { x: 1, y: 1, z: 1 },
+            radius: 1,
+            widthSegments: 32,
+            heightSegments: 16,
             position: { x: 0, y: 0, z: 0 },
             rotation: { x: 0, y: 0, z: 0 }
         }, options);
 
-        // Initialize default cube mesh
-        var geometry = new BoxGeometry(options.scale.x, options.scale.y, options.scale.z);
-        var material = new MeshNormalMaterial({  });
+        // Initialize default sphere mesh
+        var geometry = new SphereGeometry(options.radius, options.widthSegments, options.heightSegments);
+        var material = new MeshNormalMaterial({ flatShading: true });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
 
         // Construct body
-        var size = new Vec3(options.scale.x / 2, options.scale.y / 2, options.scale.z / 2);
-        var shape = new Box(size);
+        var shape = new SphereES(options.radius);
         this.body = new Body({ mass: options.mass, shape: shape });
 
         // Declare prev/next position and rotation for interpolation
@@ -86,4 +87,4 @@ class Cube extends Group {
     }
 }
 
-export { Cube };
+export { Sphere };

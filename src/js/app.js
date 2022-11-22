@@ -13,7 +13,7 @@ class App {
         this.canvas = this.renderer.domElement;
         this.clock = new Clock();
         this.deltaSum = 0;
-        this.tickRate = 10; // Calculations per second
+        this.tickRate = 5; // Calculations per second
         this.interval = 1 / this.tickRate;
 
         // Update camera options
@@ -24,7 +24,7 @@ class App {
 
         // Append to canvas
         document.body.appendChild(this.canvas);
-        document.body.appendChild(this.stats.dom);
+        //document.body.appendChild(this.stats.dom);
 
         // Add test
         this.test = new Test();
