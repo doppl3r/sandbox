@@ -25,8 +25,8 @@ module.exports = {
                     'style-loader',
                     'css-loader',
                     'sass-loader'
-                ],
-              }
+                ]
+            }
         ],
     },
     plugins: [
@@ -34,6 +34,6 @@ module.exports = {
             patterns: [
                 { from: 'public' },
             ],
-        }),
+        })
     ],
 };

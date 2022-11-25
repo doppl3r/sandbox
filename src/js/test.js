@@ -1,6 +1,7 @@
 import { Group, HemisphereLight } from 'three';
 import CannonDebugger from 'cannon-es-debugger';
 import { World, Vec3 } from 'cannon-es';
+import { Assets } from './assets';
 import { Cube } from './cube';
 import { Sphere } from './sphere';
 import { Plane } from './plane';
@@ -8,12 +9,17 @@ import { Plane } from './plane';
 class Test extends Group {
     constructor() {
         super();
+        this.assets = new Assets();
         this.world = new World({ gravity: new Vec3(0, 0, -9.82) });
         this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
         this.init();
     }
 
     init() {
+        this.assets.load(function() {
+            console.log('Assets ready!');
+        });
+
         // Add light
         var hemisphere = new HemisphereLight('#ffffff', '#000000', 1);
         hemisphere.position.set(0, -2, 2);
