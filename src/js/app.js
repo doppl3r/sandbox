@@ -58,7 +58,7 @@ class App {
         this.renderDeltaSum += delta;
         if (this.renderDeltaSum > this.renderInterval || this.renderTickRate == -1) {
             this.renderDeltaSum %= this.renderInterval;
-            this.updateRender(alpha);
+            this.updateRender(delta, alpha);
         }
     }
 
@@ -66,8 +66,8 @@ class App {
         this.test.updatePhysics(interval); // Update without alpha value
     }
 
-    updateRender(alpha) {
-        this.test.updateRender(alpha);
+    updateRender(delta, alpha) {
+        this.test.updateRender(delta, alpha);
         this.renderer.render(this.scene, this.camera);
         this.stats.end(); // End FPS counter
     }

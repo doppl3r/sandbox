@@ -16,8 +16,11 @@ class Test extends Group {
     }
 
     init() {
+        // Add model
+        var _this = this;
         this.assets.load(function() {
-            console.log('Assets ready!');
+            var model = _this.assets.models.clone('guide');
+            _this.add(model);
         });
 
         // Add light
@@ -50,7 +53,7 @@ class Test extends Group {
         this.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
     }
 
-    updateRender(alpha) {
+    updateRender(delta, alpha) {
         // Loop through all child objects
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
@@ -58,6 +61,11 @@ class Test extends Group {
             // Update 3D object to rigid body position
             if (child?.body?.type == 1) {
                 child.update(alpha, this.debugger);
+            }
+
+            // Update animations
+            if (child.animation) {
+                child.animation.update(delta);
             }
         }
     }
