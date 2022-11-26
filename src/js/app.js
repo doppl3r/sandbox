@@ -1,4 +1,5 @@
 import { Scene, PerspectiveCamera, WebGLRenderer, Clock, Vector3 } from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Test } from './test.js';
 import Stats from './stats.js';
 import '../scss/app.scss';
@@ -20,9 +21,10 @@ class App {
         this.renderInterval = 1 / this.renderTickRate;
 
         // Update camera options
-        this.camera.position.set(10, -10, 10);
+        this.camera.position.set(10, -10, 0);
         this.camera.up = new Vector3(0, 0, 1);
-        this.camera.lookAt(new Vector3(0, 0, -3));
+        this.camera.lookAt(new Vector3(0, 0, 0));
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.resizeWindow();
 
         // Append to canvas

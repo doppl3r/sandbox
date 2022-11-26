@@ -4,8 +4,7 @@
         "userData": {
             "animation": {
                 "loop": true
-            },
-            "position": { "x": 5, "y": -5, "z": 3 }
+            }
         }
     }
 }
