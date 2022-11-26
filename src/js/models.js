@@ -18,7 +18,7 @@ class Models {
                 model.name = key;
                 model.animations = gltf.animations;
                 model.userData = { ...value.userData };
-                _this.addAnimations(model);
+                _this.applyUserData(model);
                 _this.cache[key] = model;
             });
         }
@@ -32,21 +32,25 @@ class Models {
         var model = clone(object);
         model.animations = [...object.animations]; // Clone animations object
         model.traverse(function(node) { if (node.isMesh) { node.material = node.material.clone(); }}); // Clone material
-        model.position.copy(model.position);
+        model.position.copy(object.position);
 
         // Add mixer animations
-        this.addAnimations(model);
+        this.applyUserData(model);
 
         // Return new model object
         return model;
     }
 
-    addAnimations(model) {
-        // Initialize loop type
-        var loopType = (model.userData?.animation?.loop == true) ? LoopRepeat : LoopOnce;
+    applyUserData(model) {
+        // Set object properties from userData
+        if (model.userData.position) { model.position.set(model.userData.position.x, model.userData.position.y, model.userData.position.z); }
+        if (model.userData.rotation) { model.rotation.set(model.userData.rotation.x, model.userData.rotation.y, model.userData.rotation.z); }
+        if (model.userData.scale) { model.scale.set(model.userData.scale.x, model.userData.scale.y, model.userData.scale.z); }
 
         // Check if animations exist
         if (model.animations.length > 0) {
+            // Initialize loop type
+            var loopType = (model.userData?.animation?.loop == true) ? LoopRepeat : LoopOnce;
             model.traverse(function(obj) { obj.frustumCulled = false; }); // Disable offscreen clipping
             model.mixer = new AnimationMixer(model);
             model.clips = [];
