@@ -58,7 +58,7 @@ class App {
 
         // Refresh renderer on a higher (or unlimited) interval
         this.renderDeltaSum += delta;
-        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate == -1) {
+        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0) {
             this.renderDeltaSum %= this.renderInterval;
             this.updateRender(delta, alpha);
         }
@@ -69,6 +69,7 @@ class App {
     }
 
     updateRender(delta, alpha) {
+        if (this.renderTickRate > 0) delta = this.renderInterval;
         this.test.updateRender(delta, alpha);
         this.renderer.render(this.scene, this.camera);
         this.stats.end(); // End FPS counter
