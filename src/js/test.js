@@ -1,4 +1,5 @@
-import { Group, HemisphereLight } from 'three';
+import { HemisphereLight, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import CannonDebugger from 'cannon-es-debugger';
 import { World, Vec3 } from 'cannon-es';
 import { Assets } from './assets';
@@ -6,12 +7,30 @@ import { Cube } from './cube';
 import { Sphere } from './sphere';
 import { Plane } from './plane';
 
-class Test extends Group {
+class Test {
     constructor() {
-        super();
+        var _this = this;
         this.assets = new Assets();
+        this.scene = new Scene();
+        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
+        this.canvas = this.renderer.domElement;
+
+        // Update camera options
+        this.camera.position.set(10, -10, 10);
+        this.camera.up = new Vector3(0, 0, 1);
+        this.camera.lookAt(new Vector3(0, 0, 0));
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.resizeWindow();
+
+        // Append to canvas
+        document.body.appendChild(this.canvas);
+
+        // Add event listeners
+        window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
+        
         this.world = new World({ gravity: new Vec3(0, 0, -9.82) });
-        this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
+        this.debugger = new CannonDebugger(this.scene, this.world, { color: '#00ff00', scale: 1 });
         this.init();
     }
 
@@ -20,15 +39,15 @@ class Test extends Group {
         var _this = this;
         this.assets.load(function() {
             var model = _this.assets.models.clone('guide');
-            _this.add(model);
+            _this.scene.add(model);
         });
 
         // Add light
         var hemisphere = new HemisphereLight('#ffffff', '#555555', 1);
         hemisphere.position.set(0, -2, 2);
-        this.add(hemisphere);
+        this.scene.add(hemisphere);
 
-        // Add cubes
+        // Add shapes
         for (var i = 0; i < 20; i++) {
             var range = 0;
             var x = -range + Math.random() * (range - -range);
@@ -37,7 +56,7 @@ class Test extends Group {
             var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
             if (i % 2 == 0) object = new Sphere({ radius: 1 });
             object.setPosition(x, y, 10 + z);
-            this.add(object); // Add 3D object to scene
+            this.scene.add(object); // Add 3D object to scene
             this.world.addBody(object.body); // Add 
         }
 
@@ -45,7 +64,7 @@ class Test extends Group {
         var plane = new Plane();
         plane.setPosition(0, 0, -2);
         plane.setRotation(0, 0.75, 0.75);
-        this.add(plane);
+        this.scene.add(plane);
         this.world.addBody(plane.body);
     }
 
@@ -55,8 +74,8 @@ class Test extends Group {
 
     updateRender(delta, alpha) {
         // Loop through all child objects
-        for (var i = 0; i < this.children.length; i++) {
-            var child = this.children[i];
+        for (var i = 0; i < this.scene.children.length; i++) {
+            var child = this.scene.children[i];
 
             // Update 3D object to rigid body position
             if (child?.body?.type == 1) {
@@ -68,6 +87,15 @@ class Test extends Group {
                 child.animation.update(delta);
             }
         }
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    resizeWindow(e) {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height);
     }
 }
 

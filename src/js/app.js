@@ -1,18 +1,12 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Clock, Vector3 } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { Clock } from 'three';
 import { Test } from './test.js';
 import Stats from './stats.js';
 import '../scss/app.scss';
 
 class App {
     constructor() {
-        var _this = this;
-        this.stats = new Stats();
-        this.scene = new Scene();
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
-        this.canvas = this.renderer.domElement;
         this.clock = new Clock();
+        this.stats = new Stats();
         this.physicsDeltaSum = 0;
         this.physicsTickRate = 10; // Calculations per second
         this.physicsInterval = 1 / this.physicsTickRate;
@@ -20,30 +14,20 @@ class App {
         this.renderTickRate = -1; // Ex: 24 = 24fps, -1 = unlimited
         this.renderInterval = 1 / this.renderTickRate;
 
-        // Update camera options
-        this.camera.position.set(10, -10, 10);
-        this.camera.up = new Vector3(0, 0, 1);
-        this.camera.lookAt(new Vector3(0, 0, 0));
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.resizeWindow();
-
-        // Append to canvas
-        document.body.appendChild(this.canvas);
-        document.body.appendChild(this.stats.dom);
-
         // Add test
         this.test = new Test();
-        this.scene.add(this.test); // Add 3D object to scene
+
+        // Append stats to DOM
+        document.body.appendChild(this.stats.dom);
 
         // Add update loop (threejs built-in alternative to requestAnimationFrame)
-        this.renderer.setAnimationLoop(function() { _this.update(); });
+        this.update();
     }
 
     // Initialize application
     update() {
-        // Begin FPS counter
-        this.stats.begin();
-
+        this.stats.begin(); // Begin FPS counter
+        
         // Update time factors
         var delta = this.clock.getDelta();
         var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
@@ -69,9 +53,14 @@ class App {
     }
 
     updateRender(delta, alpha) {
+        var _this = this;
         if (this.renderTickRate > 0) delta = this.renderInterval;
+
+        // Refresh app data
         this.test.updateRender(delta, alpha);
-        this.renderer.render(this.scene, this.camera);
+
+        // restart loop
+        requestAnimationFrame(function() { _this.update(); });
         this.stats.end(); // End FPS counter
     }
 
@@ -84,16 +73,5 @@ class App {
         this.play = play;
         this.clock.start();
     }
-
-    resizeWindow(e) {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(width, height);
-    }
 }
 window.app = new App();
-
-// Add event listeners
-window.addEventListener('resize', function(e) { app.resizeWindow(e); });
