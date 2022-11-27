@@ -24,7 +24,7 @@ class Test extends Group {
         });
 
         // Add light
-        var hemisphere = new HemisphereLight('#ffffff', '#000000', 1);
+        var hemisphere = new HemisphereLight('#ffffff', '#555555', 1);
         hemisphere.position.set(0, -2, 2);
         this.add(hemisphere);
 

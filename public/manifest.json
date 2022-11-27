@@ -1,6 +1,6 @@
 {
-    "name": "Enter your extension name here",
-    "description": "Enter your extension description here",
+    "name": "sandbox",
+    "description": "I am using this library to experiment with 3D, physics, and other various libraries.",
     "version": "0.0.1",
     "manifest_version": 3,
     "author": "Doppler Creative",
