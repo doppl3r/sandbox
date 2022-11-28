@@ -29,6 +29,7 @@ class App {
         this.stats.begin(); // Begin FPS counter
         
         // Update time factors
+        var _this = this;
         var delta = this.clock.getDelta();
         var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
         
@@ -46,6 +47,9 @@ class App {
             this.renderDeltaSum %= this.renderInterval;
             this.updateRender(delta, alpha);
         }
+
+        // restart loop
+        requestAnimationFrame(function() { _this.update(); });
     }
 
     updatePhysics(interval) {
@@ -53,15 +57,14 @@ class App {
     }
 
     updateRender(delta, alpha) {
-        var _this = this;
+        // Set delta to target renderInterval
         if (this.renderTickRate > 0) delta = this.renderInterval;
 
-        // Refresh app data
+        // Refresh rendered data
         this.test.updateRender(delta, alpha);
-
-        // restart loop
-        requestAnimationFrame(function() { _this.update(); });
-        this.stats.end(); // End FPS counter
+        
+        // End FPS counter
+        this.stats.end();
     }
 
     pause(play = false) {
