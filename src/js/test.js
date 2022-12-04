@@ -20,7 +20,7 @@ class Test {
         this.camera.position.set(10, -10, 10);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
         this.resizeWindow();
 
         // Append to canvas
@@ -87,6 +87,10 @@ class Test {
                 child.animation.update(delta);
             }
         }
+
+        // Update orbit (required if camera position is translated)
+        this.orbit.update();
+
         this.renderer.render(this.scene, this.camera);
     }
 
