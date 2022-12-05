@@ -1,12 +1,10 @@
 import { Clock } from 'three';
 import { Test } from './test.js';
-import Stats from './stats.js';
 import '../scss/app.scss';
 
 class App {
     constructor() {
         this.clock = new Clock();
-        this.stats = new Stats();
         this.physicsDeltaSum = 0;
         this.physicsTickRate = 10; // Calculations per second
         this.physicsInterval = 1 / this.physicsTickRate;
@@ -17,17 +15,12 @@ class App {
         // Add test
         this.test = new Test();
 
-        // Append stats to DOM
-        document.body.appendChild(this.stats.dom);
-
         // Add update loop (threejs built-in alternative to requestAnimationFrame)
         this.update();
     }
 
     // Initialize application
     update() {
-        this.stats.begin(); // Begin FPS counter
-        
         // Update time factors
         var _this = this;
         var delta = this.clock.getDelta();
@@ -62,19 +55,18 @@ class App {
 
         // Refresh rendered data
         this.test.updateRender(delta, alpha);
-        
-        // End FPS counter
-        this.stats.end();
     }
 
     pause(play = false) {
         this.play = play;
         this.clock.stop();
+        this.clock.elapsedTimePaused = this.clock.getElapsedTime();
     }
 
     resume(play = true) {
         this.play = play;
         this.clock.start();
+        this.clock.elapsedTime = this.clock.elapsedTimePaused || 0;
     }
 }
 window.app = new App();

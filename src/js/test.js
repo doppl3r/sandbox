@@ -1,6 +1,8 @@
 import { HemisphereLight, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { HTMLRenderer, HTMLObject } from './html-renderer';
 import CannonDebugger from 'cannon-es-debugger';
+import Stats from './stats.js';
 import { World, Vec3 } from 'cannon-es';
 import { Assets } from './assets';
 import { Cube } from './cube';
@@ -10,11 +12,12 @@ import { Plane } from './plane';
 class Test {
     constructor() {
         var _this = this;
+        this.stats = new Stats();
         this.assets = new Assets();
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
-        this.canvas = this.renderer.domElement;
+        this.textRenderer = new HTMLRenderer();
 
         // Update camera options
         this.camera.position.set(10, -10, 10);
@@ -23,8 +26,10 @@ class Test {
         this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
         this.resizeWindow();
 
-        // Append to canvas
-        document.body.appendChild(this.canvas);
+        // Append renderer to canvas
+        document.body.appendChild(this.renderer.domElement);
+        document.body.appendChild(this.textRenderer.domElement);
+        document.body.appendChild(this.stats.dom);
 
         // Add event listeners
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
@@ -54,8 +59,10 @@ class Test {
             var y = -range + Math.random() * (range - -range);
             var z = -range + Math.random() * (range - -range);
             var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
+            var text = new HTMLObject(i);
             if (i % 2 == 0) object = new Sphere({ radius: 1 });
             object.setPosition(x, y, 10 + z);
+            object.add(text);
             this.scene.add(object); // Add 3D object to scene
             this.world.addBody(object.body); // Add 
         }
@@ -69,6 +76,7 @@ class Test {
     }
 
     updatePhysics(interval) {
+        this.stats.begin(); // Begin FPS counter
         this.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
     }
 
@@ -91,7 +99,10 @@ class Test {
         // Update orbit (required if camera position is translated)
         this.orbit.update();
 
+        // Render new scene
         this.renderer.render(this.scene, this.camera);
+        this.textRenderer.render(this.scene, this.camera);
+        this.stats.end(); // End FPS counter
     }
 
     resizeWindow(e) {
@@ -100,6 +111,7 @@ class Test {
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
+        this.textRenderer.setSize(width, height);
     }
 }
 
