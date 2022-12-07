@@ -3,11 +3,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { HTMLRenderer, HTMLObject } from './html-renderer';
 import CannonDebugger from 'cannon-es-debugger';
 import Stats from './stats.js';
+import alea from 'alea';
 import { World, Vec3 } from 'cannon-es';
 import { Assets } from './assets';
 import { Cube } from './cube';
 import { Sphere } from './sphere';
 import { Plane } from './plane';
+import { createNoise4D } from 'simplex-noise';
 
 class Test {
     constructor() {
@@ -18,6 +20,10 @@ class Test {
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.textRenderer = new HTMLRenderer();
+        this.prng = new alea('pizza'); // Change parameter to redefine seed 
+        this.noise = new createNoise4D(this.prng);
+
+        console.log('Noise: ' + this.noise(512, 512, 512, 0.0));
 
         // Update camera options
         this.camera.position.set(10, -10, 10);

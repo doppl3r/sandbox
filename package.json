@@ -10,8 +10,10 @@
     "build": "webpack --config webpack.prod.js"
   },
   "dependencies": {
+    "alea": "^1.0.1",
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
+    "simplex-noise": "^4.0.1",
     "three": "^0.146.0"
   },
   "devDependencies": {

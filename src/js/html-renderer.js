@@ -1,4 +1,4 @@
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 class HTMLRenderer extends CSS2DRenderer {
     constructor() {
@@ -28,8 +28,8 @@ class HTMLObject extends CSS2DObject {
         
         // Allow HTML to be removed when the parent is removed
         var _this = this;
-        this.addEventListener('added', function(e) {
-            _this.parent.addEventListener('removed', function(e) {
+        this.addEventListener('added', function() {
+            _this.parent.addEventListener('removed', function() {
                 _this.removeFromParent();
             });
         });
