@@ -1,6 +1,6 @@
 import { HemisphereLight, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { HTMLRenderer, HTMLObject } from './html-renderer';
+import { HTMLRenderer, HTMLObject } from './CSS2DRenderer';
 import CannonDebugger from 'cannon-es-debugger';
 import Stats from './stats.js';
 import alea from 'alea';
@@ -65,7 +65,7 @@ class Test {
             var y = -range + Math.random() * (range - -range);
             var z = -range + Math.random() * (range - -range);
             var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
-            var text = new HTMLObject(i);
+            var text = new HTMLObject('<h1 class="object-label">' + i + '</h1>');
             if (i % 2 == 0) object = new Sphere({ radius: 1 });
             object.setPosition(x, y, 10 + z);
             object.add(text);
