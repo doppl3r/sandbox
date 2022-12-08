@@ -3,8 +3,9 @@ import { Body, Plane as PlaneES } from 'cannon-es';
 
 class Plane extends Group {
     constructor(options) {
+        // Inherit Group properties
         super();
-
+        
         // Merge options
         options = Object.assign({
             type: Body.STATIC,
