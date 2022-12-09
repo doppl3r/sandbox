@@ -1,5 +1,5 @@
 import { Group, MeshNormalMaterial, Mesh, SphereGeometry } from 'three';
-import { Body, Sphere as SphereES } from 'cannon-es';
+import { Body, Sphere as SphereES, Material } from 'cannon-es';
 
 class Sphere extends Group {
     constructor(options) {
@@ -23,7 +23,11 @@ class Sphere extends Group {
 
         // Construct body
         var shape = new SphereES(options.radius);
-        this.body = new Body({ mass: options.mass, shape: shape });
+        this.body = new Body({
+            mass: options.mass,
+            shape: shape,
+            material: new Material({ friction: 0.1, restitution: 0.05 })
+        });
 
         // Enable interpolation
         this.interpolate = true;

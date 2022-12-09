@@ -36,7 +36,7 @@ class Test {
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
         
         this.world = new World({ gravity: new Vec3(0, 0, -9.82) });
-        this.debugger = new CannonDebugger(this.scene, this.world, { color: '#00ff00', scale: 1 });
+        //this.debugger = new CannonDebugger(this.scene, this.world, { color: '#00ff00', scale: 1 });
         this.init();
     }
 
@@ -60,7 +60,7 @@ class Test {
             var y = -range + Math.random() * (range - -range);
             var z = -range + Math.random() * (range - -range);
             var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
-            var text = new HTMLObject('<h1 class="object-label">' + i + '</h1>');
+            var text = new HTMLObject('<div class="object-label">' + i + '</div>');
             if (i % 2 == 0) object = new Sphere({ radius: 1 });
             object.setPosition(x, y, 10 + z);
             object.add(text);
@@ -68,17 +68,16 @@ class Test {
             this.world.addBody(object.body); // Add 
         }
 
-        // Add plane
-        //var plane = new Plane();
-        //plane.setPosition(0, 0, -2);
-        //plane.setRotation(0, 0.75, 0.75);
-        //this.scene.add(plane);
-        //this.world.addBody(plane.body);
-
-        // Add Chunk
-        var chunk = new Chunk();
-        this.scene.add(chunk);
-        this.world.addBody(chunk.body)
+        // Add Chunks
+        var chunk = new Chunk({ segments: 16, position: { x: -16, y: -16, z: 0 }});
+        var chunk2 = new Chunk({ segments: 16, position: { x: 0, y: -16, z: 0 }});
+        var chunk3 = new Chunk({ segments: 16, position: { x: 0, y: 0, z: 0 }});
+        var chunk4 = new Chunk({ segments: 16, position: { x: -16, y: 0, z: 0 }});
+        this.scene.add(chunk, chunk2, chunk3, chunk4);
+        this.world.addBody(chunk.body);
+        this.world.addBody(chunk2.body);
+        this.world.addBody(chunk3.body);
+        this.world.addBody(chunk4.body);
     }
 
     updatePhysics(interval) {

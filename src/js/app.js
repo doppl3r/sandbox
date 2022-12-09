@@ -6,7 +6,7 @@ class App {
     constructor() {
         this.clock = new Clock();
         this.physicsDeltaSum = 0;
-        this.physicsTickRate = 10; // Calculations per second
+        this.physicsTickRate = 30; // Calculations per second
         this.physicsInterval = 1 / this.physicsTickRate;
         this.renderDeltaSum = 0;
         this.renderTickRate = -1; // Ex: 24 = 24fps, -1 = unlimited

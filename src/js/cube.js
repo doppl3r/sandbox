@@ -1,5 +1,5 @@
 import { BoxGeometry, Group, MeshNormalMaterial, Mesh } from 'three';
-import { Body, Box, Vec3 } from 'cannon-es';
+import { Body, Box, Vec3, Material } from 'cannon-es';
 
 class Cube extends Group {
     constructor(options) {
@@ -22,7 +22,11 @@ class Cube extends Group {
         // Construct body
         var size = new Vec3(options.scale.x / 2, options.scale.y / 2, options.scale.z / 2);
         var shape = new Box(size);
-        this.body = new Body({ mass: options.mass, shape: shape });
+        this.body = new Body({
+            mass: options.mass,
+            shape: shape,
+            material: new Material({ friction: 0.1, restitution: 0.05 })
+        });
 
         // Enable interpolation
         this.interpolate = true;
