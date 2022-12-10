@@ -18,6 +18,7 @@ class Cube extends Group {
         var material = new MeshNormalMaterial({  });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
+        this.name = 'cube';
 
         // Construct body
         var size = new Vec3(options.scale.x / 2, options.scale.y / 2, options.scale.z / 2);

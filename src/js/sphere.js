@@ -20,6 +20,7 @@ class Sphere extends Group {
         var material = new MeshNormalMaterial({ flatShading: true });
         var mesh = new Mesh(geometry, material);
         this.add(mesh);
+        this.name = 'sphere';
 
         // Construct body
         var shape = new SphereES(options.radius);

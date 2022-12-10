@@ -7,16 +7,59 @@ class Terrain extends Group {
         // Inherit Group properties
         super();
 
-        // Merge options
-        options = Object.assign({
-
-        }, options);
+        // Set defaults
+        this.name = 'terrain';
 
         // Merge options
-        var noise = new Noise({ seed: 'pizza', resolution: 0.1, height: 1 });
-        var chunk = new Chunk({ segments: 64, noise: noise });
+        options = Object.assign({ segments: 16 }, options);
+
+        // Merge options
+        this.noise = new Noise({ seed: 'pizza', resolution: 0.1, height: 2 });
+        this.segments = options.segments;
+        if (options.world) this.world = options.world;
+        
+        // Add default chunks
+        this.addChunk({ x: 0, y: 0, z: 0 });
+        this.addChunk({ x: -16, y: 0, z: 0 });
+        this.addChunk({ x: -16, y: -16, z: 0 });
+        this.addChunk({ x: 0, y: -16, z: 0 });
+    }
+
+    addChunk(position) {
+        // Snap position to segments
+        this.snapPosition(position);
+
+        // Define chunk
+        var chunk = new Chunk({
+            segments: this.segments,
+            noise: this.noise,
+            position: position
+        });
+        chunk.point = position.x + ',' + position.y + ',' + position.z;
+        if (this.world) this.world.addBody(chunk.body);
         this.add(chunk);
-        if (options.world) options.world.addBody(chunk.body);
+    }
+    
+    getChunk(position) {
+        this.snapPosition(position);
+        var point = position.x + ',' + position.y + ',' + position.z;
+        var child = this.getObjectByProperty('point', point);
+        return child;
+    }
+
+    removeChunk(position) {
+        this.snapPosition(position);
+        var chunk = this.getChunk(position);
+        if (chunk) {
+            chunk.removeFromParent();
+            if (chunk.body) this.world.removeBody(chunk.body);
+        }
+    }
+
+    snapPosition(position) {
+        position.x = Math.floor(position.x / this.segments) * this.segments;
+        position.y = Math.floor(position.y / this.segments) * this.segments;
+        position.z = Math.floor(position.z / this.segments) * this.segments;
     }
 }
 

@@ -7,14 +7,13 @@ class Chunk extends Group {
         super();
 
         // Merge options
-        var segments = options.segments || 16;
         options = Object.assign({
             position: {
-                x: -(segments / 2),
-                y: -(segments / 2),
+                x: 0,
+                y: 0,
                 z: 0
             },
-            segments: segments,
+            segments: 16,
             type: Body.STATIC
         }, options);
         
