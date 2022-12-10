@@ -7,8 +7,7 @@ import { World, Vec3 } from 'cannon-es';
 import { Assets } from './assets';
 import { Cube } from './cube';
 import { Sphere } from './sphere';
-import { Plane } from './plane';
-import { Chunk } from './chunk';
+import { Terrain } from './terrain';
 
 class Test {
     constructor() {
@@ -21,7 +20,7 @@ class Test {
         this.textRenderer = new HTMLRenderer();
 
         // Update camera options
-        this.camera.position.set(0, -10, 10);
+        this.camera.position.set(20, -20, 20);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
@@ -44,8 +43,9 @@ class Test {
         // Add model
         var _this = this;
         this.assets.load(function() {
-            var model = _this.assets.models.clone('guide');
-            _this.scene.add(model);
+            // Load stuff. Ex:
+            // var model = _this.assets.models.clone('guide');
+            // _this.scene.add(model);
         });
 
         // Add light
@@ -54,7 +54,7 @@ class Test {
         this.scene.add(hemisphere);
 
         // Add shapes
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < 100; i++) {
             var range = 0;
             var x = -range + Math.random() * (range - -range);
             var y = -range + Math.random() * (range - -range);
@@ -68,16 +68,9 @@ class Test {
             this.world.addBody(object.body); // Add 
         }
 
-        // Add Chunks
-        var chunk = new Chunk({ segments: 16, position: { x: -16, y: -16, z: 0 }});
-        var chunk2 = new Chunk({ segments: 16, position: { x: 0, y: -16, z: 0 }});
-        var chunk3 = new Chunk({ segments: 16, position: { x: 0, y: 0, z: 0 }});
-        var chunk4 = new Chunk({ segments: 16, position: { x: -16, y: 0, z: 0 }});
-        this.scene.add(chunk, chunk2, chunk3, chunk4);
-        this.world.addBody(chunk.body);
-        this.world.addBody(chunk2.body);
-        this.world.addBody(chunk3.body);
-        this.world.addBody(chunk4.body);
+        // Add Terrain
+        var terrain = new Terrain({ world: this.world });
+        this.scene.add(terrain);
     }
 
     updatePhysics(interval) {

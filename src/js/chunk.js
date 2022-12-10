@@ -1,7 +1,5 @@
 import { Group, MeshNormalMaterial, MeshStandardMaterial, Mesh, PlaneGeometry } from 'three';
 import { Body, Heightfield, Material } from 'cannon-es';
-import { createNoise4D } from 'simplex-noise';
-import alea from 'alea';
 
 class Chunk extends Group {
     constructor(options) {
@@ -11,15 +9,14 @@ class Chunk extends Group {
         // Merge options
         var segments = options.segments || 16;
         options = Object.assign({
-            type: Body.STATIC,
-            segments: segments,
             position: {
                 x: -(segments / 2),
                 y: -(segments / 2),
                 z: 0
-            }
+            },
+            segments: segments,
+            type: Body.STATIC
         }, options);
-        
         
         // Create mesh geometry
         var geometry = new PlaneGeometry(options.segments, options.segments, options.segments, options.segments);
@@ -29,22 +26,16 @@ class Chunk extends Group {
         this.name = 'chunk';
         this.add(plane);
 
-        // Set noise seed
-        var prng = new alea('abc123'); // Change parameter to redefine seed 
-        var noise = new createNoise4D(prng);
-        var scaleNoise = 0.1;
-        var scaleHeight = 2;
-
         // Add height to map from z-noise
         var matrix = [];
         var bufferItemSize = plane.geometry.attributes.position.itemSize;
         for (var x = 0; x < options.segments + 1; x++) {
             matrix.push([]);
             for (var y = 0; y < options.segments + 1; y++) {
-                // noise(x, y, z, w)
+                // Update height map with or without noise
                 var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
-                var height = noise((x + options.position.x) * scaleNoise, (y + options.position.y) * scaleNoise, 0, 0);
-                var z = height * scaleHeight; // Scale
+                var height = (options.noise) ? options.noise((x + options.position.x) * options.noise.resolution, (y + options.position.y) * options.noise.resolution, 0, 0) * options.noise.height : 0;
+                var z = height;
                 plane.geometry.attributes.position.array[index] = x + options.position.x;
                 plane.geometry.attributes.position.array[index + 1] = y + options.position.y;
                 plane.geometry.attributes.position.array[index + 2] = z + options.position.z;
