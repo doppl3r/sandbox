@@ -14,7 +14,11 @@ class Terrain extends Group {
         options = Object.assign({ segments: 16 }, options);
 
         // Merge options
-        this.noise = new Noise({ seed: 'pizza', resolution: 0.1, height: 2 });
+        var seed = 'pizza';
+        this.noises = [
+            new Noise({ seed: seed + 'ground', resolution: 0.1, height: 1 }),
+            new Noise({ seed: seed + 'mountain', resolution: 0.01, height: 25 })
+        ];
         this.segments = options.segments;
         if (options.world) this.world = options.world;
         
@@ -35,7 +39,7 @@ class Terrain extends Group {
         if (chunk == null) {
             chunk = new Chunk({
                 segments: this.segments,
-                noise: this.noise,
+                noise: this.noises,
                 position: position
             });
             chunk.point = position.x + ',' + position.y + ',' + position.z;

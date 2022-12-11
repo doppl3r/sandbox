@@ -32,8 +32,7 @@ class Chunk extends Group {
             for (var y = 0; y < options.segments + 1; y++) {
                 // Update height map with or without noise
                 var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
-                var height = (options.noise) ? options.noise((x + options.position.x) * options.noise.resolution, (y + options.position.y) * options.noise.resolution, 0, 0) * options.noise.height : 0;
-                var z = height;
+                var z = this.getHeight(x, y, options);
                 plane.geometry.attributes.position.array[index] = x + options.position.x;
                 plane.geometry.attributes.position.array[index + 1] = y + options.position.y;
                 plane.geometry.attributes.position.array[index + 2] = z + options.position.z;
@@ -49,6 +48,24 @@ class Chunk extends Group {
             shape: new Heightfield(matrix, { elementSize: 1 })
         });
         this.body.position.copy(options.position);
+    }
+
+    getHeight(x, y, options) {
+        var noise = options.noise;
+
+        // Return 0 if no noise exists
+        if (noise == null) return 0;
+
+        // Wrap noise in array if not done already
+        if (Array.isArray(noise) == false) noise = [noise];
+
+        // Loop through noise arrays and add height
+        var height = 0;
+        for (var i = 0; i < noise.length; i++) {
+            var n = noise[i];
+            height += n((x + options.position.x) * n.resolution, (y + options.position.y) * n.resolution, 0, 0) * n.height;
+        }
+        return height;
     }
 }
 
