@@ -60,6 +60,15 @@ class Terrain extends Group {
         }
     }
 
+    removeChunks() {
+        var length = this.children.length;
+        for (var i = length - 1; i >= 0; i--) {
+            var chunk = this.children[i];
+            chunk.removeFromParent();
+            this.world.removeBody(chunk.body);
+		}
+    }
+
     snapPosition(position) {
         position.x = Math.floor(position.x / this.segments) * this.segments;
         position.y = Math.floor(position.y / this.segments) * this.segments;

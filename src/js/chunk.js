@@ -1,4 +1,4 @@
-import { Group, MeshNormalMaterial, MeshStandardMaterial, Mesh, PlaneGeometry } from 'three';
+import { Group, MeshNormalMaterial, DoubleSide, Mesh, PlaneGeometry } from 'three';
 import { Body, Heightfield, Material } from 'cannon-es';
 
 class Chunk extends Group {
@@ -19,8 +19,7 @@ class Chunk extends Group {
         
         // Create mesh geometry
         var geometry = new PlaneGeometry(options.segments, options.segments, options.segments, options.segments);
-        var material = new MeshNormalMaterial({ flatShading: true });
-        //var material = new MeshStandardMaterial({ color: '#ff0000', flatShading: true });
+        var material = new MeshNormalMaterial({ flatShading: true, side: DoubleSide });
         var plane = new Mesh(geometry, material);
         this.name = 'chunk';
         this.add(plane);
