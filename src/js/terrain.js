@@ -23,8 +23,8 @@ class Terrain extends Group {
         if (options.world) this.world = options.world;
         
         // Add default chunks
-        for (var x = -64; x < 64; x += this.segments) {
-            for (var y = -64; y < 64; y += this.segments) {
+        for (var x = -128; x < 128; x += this.segments) {
+            for (var y = -128; y < 128; y += this.segments) {
                 this.addChunk({ x: x, y: y, z: 0 });
             }
         }

@@ -33,13 +33,14 @@ class Chunk extends Group {
                 // Update height map with or without noise
                 var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
                 var z = this.getHeight(x, y, options);
-                plane.geometry.attributes.position.array[index] = x + options.position.x;
-                plane.geometry.attributes.position.array[index + 1] = y + options.position.y;
-                plane.geometry.attributes.position.array[index + 2] = z + options.position.z;
+                plane.geometry.attributes.position.array[index] = x;
+                plane.geometry.attributes.position.array[index + 1] = y;
+                plane.geometry.attributes.position.array[index + 2] = z;
                 matrix[x].push(z);
             }
         }
-        plane.geometry.computeVertexNormals();
+        this.position.copy(options.position); // translate chunk position
+        plane.geometry.computeVertexNormals(); // Update normals
 
         // Initialize rigid body
         this.body = new Body({
