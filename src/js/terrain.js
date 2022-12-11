@@ -19,25 +19,29 @@ class Terrain extends Group {
         if (options.world) this.world = options.world;
         
         // Add default chunks
-        this.addChunk({ x: 0, y: 0, z: 0 });
-        this.addChunk({ x: -16, y: 0, z: 0 });
-        this.addChunk({ x: -16, y: -16, z: 0 });
-        this.addChunk({ x: 0, y: -16, z: 0 });
+        for (var x = -64; x < 64; x += this.segments) {
+            for (var y = -64; y < 64; y += this.segments) {
+                this.addChunk({ x: x, y: y, z: 0 });
+            }
+        }
     }
 
     addChunk(position) {
         // Snap position to segments
         this.snapPosition(position);
-
-        // Define chunk
-        var chunk = new Chunk({
-            segments: this.segments,
-            noise: this.noise,
-            position: position
-        });
-        chunk.point = position.x + ',' + position.y + ',' + position.z;
-        if (this.world) this.world.addBody(chunk.body);
-        this.add(chunk);
+        
+        // Add chunk if it does not exist
+        var chunk = this.getChunk(position);
+        if (chunk == null) {
+            chunk = new Chunk({
+                segments: this.segments,
+                noise: this.noise,
+                position: position
+            });
+            chunk.point = position.x + ',' + position.y + ',' + position.z;
+            if (this.world) this.world.addBody(chunk.body);
+            this.add(chunk);
+        }
     }
     
     getChunk(position) {
