@@ -31,24 +31,29 @@ class Chunk extends Group {
         }
 
         // Add plane mesh to chunk
+        plane.castShadow = true;
+        plane.receiveShadow = true;
         this.name = 'chunk';
         this.add(plane);
 
         // Add height to map from z-noise
-        var matrix = [];
-        var bufferItemSize = plane.geometry.attributes.position.itemSize;
-        for (var x = 0; x < options.segments + 1; x++) {
-            matrix.push([]);
-            for (var y = 0; y < options.segments + 1; y++) {
-                // Update height map with or without noise
-                var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
-                var z = this.getHeight(x, y, options);
-                plane.geometry.attributes.position.array[index] = x;
-                plane.geometry.attributes.position.array[index + 1] = y;
-                plane.geometry.attributes.position.array[index + 2] = z;
-                matrix[x].push(z);
+        if (options.noise) {
+            var matrix = [];
+            var bufferItemSize = plane.geometry.attributes.position.itemSize;
+            for (var x = 0; x < options.segments + 1; x++) {
+                matrix.push([]);
+                for (var y = 0; y < options.segments + 1; y++) {
+                    // Update height map with or without noise
+                    var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
+                    var z = this.getHeight(x, y, options);
+                    plane.geometry.attributes.position.array[index] = x;
+                    plane.geometry.attributes.position.array[index + 1] = y;
+                    plane.geometry.attributes.position.array[index + 2] = z;
+                    matrix[x].push(z);
+                }
             }
         }
+
         this.position.copy(options.position); // translate chunk position
         plane.geometry.computeVertexNormals(); // Update normals
 

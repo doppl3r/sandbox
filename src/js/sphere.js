@@ -19,6 +19,8 @@ class Sphere extends Group {
         var geometry = new SphereGeometry(options.radius, options.widthSegments, options.heightSegments);
         var material = new MeshNormalMaterial({ flatShading: true });
         var mesh = new Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         this.add(mesh);
         this.name = 'sphere';
 

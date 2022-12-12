@@ -20,9 +20,6 @@ class HTMLObject extends CSS2DObject {
             element = element.content.firstChild;
         }
 
-        // Update element styles
-        Object.assign(element.style, { pointerEvents: 'all' });
-
         // Inherit CSS2DObject constructor with a new element
         super(element);
         

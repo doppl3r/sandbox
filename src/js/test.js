@@ -1,9 +1,10 @@
-import { HemisphereLight, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
+import { PerspectiveCamera, PCFSoftShadowMap, Scene, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { HTMLRenderer, HTMLObject } from './CSS2DRenderer';
 import CannonDebugger from 'cannon-es-debugger';
 import Stats from './stats.js';
 import { World, Vec3 } from 'cannon-es';
+import { Sun } from './sun';
 import { Assets } from './assets';
 import { Cube } from './cube';
 import { Sphere } from './sphere';
@@ -15,16 +16,21 @@ class Test {
         this.stats = new Stats();
         this.assets = new Assets();
         this.scene = new Scene();
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 4000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = PCFSoftShadowMap;
         this.textRenderer = new HTMLRenderer();
 
         // Update camera options
-        this.camera.position.set(20, -20, 20);
+        this.camera.position.set(0, -100, 100);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
         this.resizeWindow();
+
+        // Add light
+        this.sun = new Sun({ position: { x: 128, y: -128, z: 64 }});
 
         // Append renderer to canvas
         document.body.appendChild(this.renderer.domElement);
@@ -47,10 +53,8 @@ class Test {
             // var model = _this.assets.models.clone('guide');
             // _this.scene.add(model);
 
-            // Add light
-            var hemisphere = new HemisphereLight('#ffffff', '#555555', 1);
-            hemisphere.position.set(0, -2, 2);
-            _this.scene.add(hemisphere);
+            // Add light to scene
+            _this.scene.add(_this.sun);
     
             // Add shapes
             for (var i = 0; i < 20; i++) {
@@ -62,14 +66,14 @@ class Test {
                 var text = new HTMLObject('<div class="object-label">' + i + '</div>');
                 if (i % 2 == 0) object = new Sphere({ radius: 1 });
                 object.setPosition(x, y, 10 + z);
-                object.add(text);
+                //object.add(text);
                 _this.scene.add(object); // Add 3D object to scene
                 _this.world.addBody(object.body); // Add 
             }
     
             // Add Terrain
-            var terrain = new Terrain({ world: _this.world, assets: _this.assets });
-            _this.scene.add(terrain);
+            _this.terrain = new Terrain({ world: _this.world, assets: _this.assets });
+            _this.scene.add(_this.terrain);
         });
     }
 

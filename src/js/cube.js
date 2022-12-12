@@ -15,8 +15,10 @@ class Cube extends Group {
 
         // Initialize default cube mesh
         var geometry = new BoxGeometry(options.scale.x, options.scale.y, options.scale.z);
-        var material = new MeshNormalMaterial({  });
+        var material = new MeshNormalMaterial();
         var mesh = new Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         this.add(mesh);
         this.name = 'cube';
 
