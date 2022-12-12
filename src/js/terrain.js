@@ -21,6 +21,7 @@ class Terrain extends Group {
         ];
         this.segments = options.segments;
         if (options.world) this.world = options.world;
+        if (options.assets) this.assets = options.assets;
         
         // Add default chunks
         for (var x = -128; x < 128; x += this.segments) {
@@ -37,14 +38,23 @@ class Terrain extends Group {
         // Add chunk if it does not exist
         var chunk = this.getChunk(position);
         if (chunk == null) {
+            // TODO: Conditionally choose texture
+            var texture = this.assets.textures.cache['grass'];
+
+            // Define new chunk
             chunk = new Chunk({
                 segments: this.segments,
                 noise: this.noises,
-                position: position
+                position: position,
+                texture: texture
             });
+
+            // Assign new property
             chunk.point = position.x + ',' + position.y + ',' + position.z;
-            if (this.world) this.world.addBody(chunk.body);
+
+            // Add object and physical body
             this.add(chunk);
+            if (this.world) this.world.addBody(chunk.body);
         }
     }
     

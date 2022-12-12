@@ -5,14 +5,14 @@ import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 class Models {
     constructor(manager) {
         this.cache = {};
-        this.modelLoader = new GLTFLoader(manager);
+        this.loader = new GLTFLoader(manager);
     }
 
     load() {
         var _this = this;
         var json = require('../json/models.json');
         for (const [key, value] of Object.entries(json)) {
-            this.modelLoader.load(value.url, function(gltf) {
+            this.loader.load(value.url, function(gltf) {
                 // Load model from gltf.scene Object3D (includes SkinnedMesh)
                 var model = gltf.scene;
                 model.name = key;

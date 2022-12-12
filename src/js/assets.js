@@ -1,12 +1,14 @@
 import { LoadingManager } from 'three';
 import { Audio } from './audio.js';
 import { Models } from './models.js';
+import { Textures } from './textures.js';
 
 class Assets {
     constructor() {
         this.manager = new LoadingManager();
         this.audio = new Audio(this.manager);
         this.models = new Models(this.manager);
+        this.textures = new Textures(this.manager);
     }
 
     update(delta) {
@@ -18,6 +20,7 @@ class Assets {
         this.manager.onProgress = this.loadProgress;
         this.audio.load();
         this.models.load();
+        this.textures.load();
     }
 
     loadProgress(urls, index, max) {

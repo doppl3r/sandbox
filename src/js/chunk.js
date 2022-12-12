@@ -1,4 +1,4 @@
-import { Group, MeshNormalMaterial, DoubleSide, Mesh, PlaneGeometry } from 'three';
+import { Group, MeshStandardMaterial, Mesh, PlaneGeometry, RepeatWrapping } from 'three';
 import { Body, Heightfield, Material } from 'cannon-es';
 
 class Chunk extends Group {
@@ -19,8 +19,18 @@ class Chunk extends Group {
         
         // Create mesh geometry
         var geometry = new PlaneGeometry(options.segments, options.segments, options.segments, options.segments);
-        var material = new MeshNormalMaterial({ flatShading: true, side: DoubleSide });
+        var material = new MeshStandardMaterial({ flatShading: true });
         var plane = new Mesh(geometry, material);
+        
+        // Add optional texture
+        if (options.texture) {
+            material.map = options.texture;
+            options.texture.repeat.set(options.segments, options.segments);
+            options.texture.wrapS = RepeatWrapping;
+            options.texture.wrapT = RepeatWrapping;
+        }
+
+        // Add plane mesh to chunk
         this.name = 'chunk';
         this.add(plane);
 

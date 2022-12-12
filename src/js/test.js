@@ -46,31 +46,31 @@ class Test {
             // Load stuff. Ex:
             // var model = _this.assets.models.clone('guide');
             // _this.scene.add(model);
+
+            // Add light
+            var hemisphere = new HemisphereLight('#ffffff', '#555555', 1);
+            hemisphere.position.set(0, -2, 2);
+            _this.scene.add(hemisphere);
+    
+            // Add shapes
+            for (var i = 0; i < 20; i++) {
+                var range = 0;
+                var x = -range + Math.random() * (range - -range);
+                var y = -range + Math.random() * (range - -range);
+                var z = -range + Math.random() * (range - -range);
+                var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
+                var text = new HTMLObject('<div class="object-label">' + i + '</div>');
+                if (i % 2 == 0) object = new Sphere({ radius: 1 });
+                object.setPosition(x, y, 10 + z);
+                object.add(text);
+                _this.scene.add(object); // Add 3D object to scene
+                _this.world.addBody(object.body); // Add 
+            }
+    
+            // Add Terrain
+            var terrain = new Terrain({ world: _this.world, assets: _this.assets });
+            _this.scene.add(terrain);
         });
-
-        // Add light
-        var hemisphere = new HemisphereLight('#ffffff', '#555555', 1);
-        hemisphere.position.set(0, -2, 2);
-        this.scene.add(hemisphere);
-
-        // Add shapes
-        for (var i = 0; i < 100; i++) {
-            var range = 0;
-            var x = -range + Math.random() * (range - -range);
-            var y = -range + Math.random() * (range - -range);
-            var z = -range + Math.random() * (range - -range);
-            var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
-            var text = new HTMLObject('<div class="object-label">' + i + '</div>');
-            if (i % 2 == 0) object = new Sphere({ radius: 1 });
-            object.setPosition(x, y, 10 + z);
-            object.add(text);
-            this.scene.add(object); // Add 3D object to scene
-            this.world.addBody(object.body); // Add 
-        }
-
-        // Add Terrain
-        var terrain = new Terrain({ world: this.world });
-        this.scene.add(terrain);
     }
 
     updatePhysics(interval) {
