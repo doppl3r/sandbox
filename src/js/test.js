@@ -30,7 +30,7 @@ class Test {
         this.resizeWindow();
 
         // Add light
-        this.sun = new Sun({ position: { x: 128, y: -128, z: 64 }});
+        this.sun = new Sun();
 
         // Append renderer to canvas
         document.body.appendChild(this.renderer.domElement);
