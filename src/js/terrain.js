@@ -14,10 +14,10 @@ class Terrain extends Group {
         options = Object.assign({ segments: 16 }, options);
 
         // Merge options
-        var seed = 'pizza';
+        var seed = 'abcde123';
         this.noises = [
-            new Noise({ seed: seed + 'ground', resolution: 0.1, height: 1 }),
-            new Noise({ seed: seed + 'mountain', resolution: 0.01, height: 25 })
+            new Noise({ seed: seed + 'ground', resolution: 0.125, height: 1 }),
+            new Noise({ seed: seed + 'mountain', resolution: 0.0125, height: 40 })
         ];
         this.segments = options.segments;
         if (options.world) this.world = options.world;
