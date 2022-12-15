@@ -23,7 +23,7 @@ class Test {
         this.textRenderer = new HTMLRenderer();
 
         // Update camera options
-        this.camera.position.set(0, -100, 100);
+        this.camera.position.set(250, -250, 250);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
@@ -57,14 +57,15 @@ class Test {
             _this.scene.add(_this.sun);
     
             // Add shapes
-            for (var i = 0; i < 20; i++) {
+            for (var i = 0; i < 100; i++) {
                 var range = 0;
+                var scale = 4;
                 var x = -range + Math.random() * (range - -range);
                 var y = -range + Math.random() * (range - -range);
                 var z = -range + Math.random() * (range - -range);
-                var object = new Cube({ scale: { x: 2, y: 2, z: 2 }});
+                var object = new Cube({ scale: { x: scale, y: scale, z: scale }});
                 var text = new HTMLObject('<div class="object-label">' + i + '</div>');
-                if (i % 2 == 0) object = new Sphere({ radius: 1 });
+                if (i % 2 == 0) object = new Sphere({ radius: scale / 2 });
                 object.setPosition(x, y, 10 + z);
                 //object.add(text);
                 _this.scene.add(object); // Add 3D object to scene
@@ -98,8 +99,8 @@ class Test {
             }
         }
 
-        // Update orbit (required if camera position is translated)
-        this.orbit.update();
+        // Update sun orbit
+        this.sun.update(delta);
 
         // Render new scene
         this.renderer.render(this.scene, this.camera);

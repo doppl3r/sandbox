@@ -11,21 +11,21 @@ class Terrain extends Group {
         this.name = 'terrain';
 
         // Merge options
-        options = Object.assign({ segments: 16 }, options);
+        options = Object.assign({ segments: 32 }, options);
 
         // Merge options
         var seed = 'abcde123';
         this.noises = [
-            new Noise({ seed: seed + 'ground', resolution: 0.125, height: 1 }),
-            new Noise({ seed: seed + 'mountain', resolution: 0.0125, height: 40 })
+            new Noise({ seed: seed + 'ground', resolution: 0.1, height: 3 }),
+            new Noise({ seed: seed + 'mountain', resolution: 0.0085, height: 75 })
         ];
         this.segments = options.segments;
         if (options.world) this.world = options.world;
         if (options.assets) this.assets = options.assets;
         
         // Add default chunks
-        var rows = 8;
-        var cols = 8;
+        var rows = 4;
+        var cols = 4;
         for (var x = -options.segments * cols; x < options.segments * cols; x += this.segments) {
             for (var y = -options.segments * rows; y < options.segments * rows; y += this.segments) {
                 this.addChunk({ x: x, y: y, z: 0 });
