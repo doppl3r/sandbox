@@ -60,6 +60,7 @@ class Sun extends Group {
         var material = new PointsMaterial({ size: size, map: texture, transparent: true, sizeAttenuation: true });
         geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0], 3));
         this.graphic = new Points(geometry, material);
+        this.graphic.frustumCulled = false;
     }
 
     updatePosition(position = { x: 0, y: 0, z: 0 }) {
