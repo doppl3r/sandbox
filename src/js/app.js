@@ -12,6 +12,10 @@ class App {
         this.renderTickRate = -1; // Ex: 24 = 24fps, -1 = unlimited
         this.renderInterval = 1 / this.renderTickRate;
 
+        // Pause/Resume clock when visible
+        var _this = this;
+        document.addEventListener('visibilitychange', function(e) { _this.visibilityChange(); });
+
         // Add test
         this.test = new Test();
 
@@ -67,6 +71,11 @@ class App {
         this.play = play;
         this.clock.start();
         this.clock.elapsedTime = this.clock.elapsedTimePaused || 0;
+    }
+
+    visibilityChange() {
+        if (document.visibilityState == 'visible') this.resume(this.play);
+        else this.pause(this.play);
     }
 }
 window.app = new App();
