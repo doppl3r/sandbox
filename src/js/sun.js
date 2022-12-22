@@ -8,19 +8,19 @@ class Sun extends Group {
         options = Object.assign({}, options);
 
         // Create directional light (shadow effect)
-        var color = '#ffffff';
-        this.direct = new DirectionalLight(color, 0.5);
+        var colors = ['#ffffff', '#ffffff'];
+        this.direct = new DirectionalLight(colors, 0.5);
         this.direct.castShadow = true;
 
         // Create hemisphere lighting (natural light)
-        this.hemisphere = new HemisphereLight(color, '#000000', 0.5);
+        this.hemisphere = new HemisphereLight(colors[0], '#000000', 0.5);
 
         // Update position
         this.time = 3; // 12 = noon
         this.speed = 4; // 1 rotation = 24 seconds
         this.updateSamples(512);
         this.updatePosition({ x: 0, y: 0, z: 0 });
-        this.updateGraphic(color, 128, 128);
+        this.updateGraphic(colors, 128, 128);
         this.updateTime(this.time);
         
         // Add lights to group
@@ -53,9 +53,9 @@ class Sun extends Group {
         }
     }
 
-    updateGraphic(color = '#ffffff', size = 128, resolution = 128) {
+    updateGraphic(colors = ['#ffffff'], size = 128, resolution = 128) {
         // Add sun particle
-        var texture = this.updateTexture(color, resolution);
+        var texture = this.updateTexture(colors, resolution);
         var geometry = new BufferGeometry();
         var material = new PointsMaterial({ size: size, map: texture, transparent: true, sizeAttenuation: true });
         geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0], 3));
@@ -87,20 +87,23 @@ class Sun extends Group {
         this.direct.position.add(this.direct.target.position);
     }
 
-    updateTexture(color = '#ffffff', size) {
+    updateTexture(colors = ['#ffffff'], size) {
         var canvas = document.createElement('canvas');
         var padding = 1;
         canvas.height = size + (padding * 2);
         canvas.width = size + (padding * 2);
+        if (colors.length < 2) colors[1] = colors[0];
         
         // Create canvas context and material
         var context = canvas.getContext('2d');
         var texture = new Texture(canvas);
         var center = (size / 2) + padding;
         var radGrad = context.createRadialGradient(center, center, size * 0.4, center, center, size * 0.5);
-        var rgb = { r: parseInt(color.slice(1, 3), 16), g: parseInt(color.slice(3, 5), 16), b: parseInt(color.slice(5, 7), 16) }
-        radGrad.addColorStop(0, 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', 1)');
-        radGrad.addColorStop(1, 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', 0)');
+        var rgbs = colors.map(function(color) { return { r: parseInt(color.slice(1, 3), 16), g: parseInt(color.slice(3, 5), 16), b: parseInt(color.slice(5, 7), 16) }});
+        rgbs.forEach(function(rgb, index, arr) {
+            var alpha = index / (arr.length - 1);
+            radGrad.addColorStop(alpha, 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', ' + (1 - alpha) + ')');
+        });
         context.fillStyle = radGrad;
         context.fillRect(0, 0, size + (padding * 2), size + (padding * 2));
         texture.needsUpdate = true;

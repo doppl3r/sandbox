@@ -9,6 +9,7 @@ import { Assets } from './assets';
 import { Cube } from './cube';
 import { Sphere } from './sphere';
 import { Terrain } from './terrain';
+import { Background } from './background';
 
 class Test {
     constructor() {
@@ -16,6 +17,7 @@ class Test {
         this.stats = new Stats();
         this.assets = new Assets();
         this.scene = new Scene();
+        this.background = new Background();
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 4000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
