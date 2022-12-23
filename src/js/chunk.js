@@ -56,19 +56,25 @@ class Chunk extends Group {
                     var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
                     var z = this.getHeight(x, y, options);
                     var alpha = (z + max) / (max * 2); // vertex color alpha
+
+                    // Update vertex position
                     geometry.attributes.position.array[index] = x;
                     geometry.attributes.position.array[index + 1] = y;
                     geometry.attributes.position.array[index + 2] = z;
                     matrix[x].push(z);
 
                     if (material.vertexColors) {
-                        var color_one_index = Math.floor(alpha * colors.length);
-                        var color_two_index = Math.floor(alpha * colors.length) + 1;
-                        var color_alpha = (alpha * colors.length) % colors.length % 1;
-                        if (color_two_index > colors.length - 1) color_two_index = color_one_index;
-                        color_one.set(colors[color_one_index]);
-                        color_two.set(colors[color_two_index]);
-                        color_new.lerpColors(color_one, color_two, color_alpha);
+                        // Define vertex color index and alpha value
+                        color_one.index = Math.floor(alpha * (colors.length - 1));
+                        color_two.index = Math.floor(alpha * (colors.length - 1)) + 1;
+                        color_new.alpha = (alpha * (colors.length - 1)) % (colors.length - 1) % 1;
+
+                        // Interpolate between colors
+                        color_one.set(colors[color_one.index]);
+                        color_two.set(colors[color_two.index]);
+                        color_new.lerpColors(color_one, color_two, color_new.alpha);
+
+                        // Define new vertex colors
                         geometry.attributes.color.array[index] = color_new.r;
                         geometry.attributes.color.array[index + 1] = color_new.g;
                         geometry.attributes.color.array[index + 2] = color_new.b;
