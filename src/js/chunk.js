@@ -1,4 +1,4 @@
-import { BufferAttribute, Group, MeshStandardMaterial, Mesh, PlaneGeometry, RepeatWrapping } from 'three';
+import { BufferAttribute, Color, Group, MeshStandardMaterial, Mesh, PlaneGeometry, RepeatWrapping } from 'three';
 import { Body, Heightfield, Material } from 'cannon-es';
 
 class Chunk extends Group {
@@ -41,7 +41,10 @@ class Chunk extends Group {
             var matrix = [];
             var bufferItemSize = geometry.attributes.position.itemSize;
             var max = options.noise.reduce(function(a, b) { return Math.abs(a.height) + Math.abs(b.height); });
-            var min = -max;
+            var colors = ['#0000ff', '#00ffff', '#00ff00', '#ffff00', '#ff0000'];
+            var color_one = new Color();
+            var color_two = new Color();
+            var color_new = new Color();
 
             // Define empty color buffered attribute
             if (material.vertexColors) geometry.setAttribute('color', new BufferAttribute(new Float32Array(geometry.attributes.position.count * 3), 3));
@@ -52,16 +55,23 @@ class Chunk extends Group {
                     // Update height map with or without noise
                     var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
                     var z = this.getHeight(x, y, options);
+                    var alpha = (z + max) / (max * 2); // vertex color alpha
                     geometry.attributes.position.array[index] = x;
                     geometry.attributes.position.array[index + 1] = y;
                     geometry.attributes.position.array[index + 2] = z;
                     matrix[x].push(z);
 
                     if (material.vertexColors) {
-                        // Set a buffer of vertex colors based on z-height
-                        geometry.attributes.color.array[index] = (z - min) / (max * 2);
-                        geometry.attributes.color.array[index + 1] = (z - min) / (max * 2);
-                        geometry.attributes.color.array[index + 2] = (z - min) / (max * 2);
+                        var color_one_index = Math.floor(alpha * colors.length);
+                        var color_two_index = Math.floor(alpha * colors.length) + 1;
+                        var color_alpha = (alpha * colors.length) % colors.length % 1;
+                        if (color_two_index > colors.length - 1) color_two_index = color_one_index;
+                        color_one.set(colors[color_one_index]);
+                        color_two.set(colors[color_two_index]);
+                        color_new.lerpColors(color_one, color_two, color_alpha);
+                        geometry.attributes.color.array[index] = color_new.r;
+                        geometry.attributes.color.array[index + 1] = color_new.g;
+                        geometry.attributes.color.array[index + 2] = color_new.b;
                     }
                 }
             }

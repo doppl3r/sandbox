@@ -16,8 +16,8 @@ class Sun extends Group {
         this.hemisphere = new HemisphereLight(colors[0], '#000000', 0.5);
 
         // Update position
-        this.time = 3; // 12 = noon
-        this.speed = 4; // 1 rotation = 24 seconds
+        this.time = 9; // 12 = noon
+        this.speed = 0.25; // 1 rotation = 24 seconds
         this.updateSamples(512);
         this.updatePosition({ x: 0, y: 0, z: 0 });
         this.updateGraphic(colors, 128, 128);
@@ -108,6 +108,19 @@ class Sun extends Group {
         context.fillRect(0, 0, size + (padding * 2), size + (padding * 2));
         texture.needsUpdate = true;
         return texture;
+    }
+
+    hexToRgb(hex) {
+        hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) { return '#' + r + r + g + g + b + b; });
+        hex = hex.substring(1).match(/.{2}/g).map(function(x) { return parseInt(x, 16); });
+        return hex;
+    }
+
+    rgbToHex(r, g, b) {
+        var hex = [r, g, b];
+        hex = hex.map(function(x) { var str = x.toString(16); return str.length === 1 ? '0' + str : str; });
+        hex = '#' + hex.join('');
+        return hex;
     }
 }
 

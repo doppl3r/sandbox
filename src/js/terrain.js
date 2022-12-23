@@ -40,15 +40,11 @@ class Terrain extends Group {
         // Add chunk if it does not exist
         var chunk = this.getChunk(position);
         if (chunk == null) {
-            // TODO: Conditionally choose texture
-            var texture = this.assets.textures.cache['grass'];
-
             // Define new chunk
             chunk = new Chunk({
                 segments: this.segments,
                 noise: this.noises,
-                position: position,
-                texture: texture
+                position: position
             });
 
             // Assign new property
