@@ -5,6 +5,10 @@ class Background {
 
     }
 
+    getLinearGradientMaterial() {
+        
+    }
+
     getLinearGradient(colors = ['#ffffff', '#000000'], width = 64, height = 64) {
         var canvas = document.createElement('canvas');
         canvas.height = width;

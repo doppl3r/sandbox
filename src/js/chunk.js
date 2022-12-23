@@ -1,4 +1,4 @@
-import { Group, MeshStandardMaterial, Mesh, PlaneGeometry, RepeatWrapping } from 'three';
+import { BufferAttribute, Group, MeshStandardMaterial, Mesh, PlaneGeometry, RepeatWrapping } from 'three';
 import { Body, Heightfield, Material } from 'cannon-es';
 
 class Chunk extends Group {
@@ -19,7 +19,7 @@ class Chunk extends Group {
         
         // Create mesh geometry
         var geometry = new PlaneGeometry(options.segments, options.segments, options.segments, options.segments);
-        var material = new MeshStandardMaterial({ flatShading: true });
+        var material = new MeshStandardMaterial({ flatShading: true, vertexColors: true });
         var plane = new Mesh(geometry, material);
         
         // Add optional texture
@@ -39,23 +39,37 @@ class Chunk extends Group {
         // Add height to map from z-noise
         if (options.noise) {
             var matrix = [];
-            var bufferItemSize = plane.geometry.attributes.position.itemSize;
+            var bufferItemSize = geometry.attributes.position.itemSize;
+            var max = options.noise.reduce(function(a, b) { return Math.abs(a.height) + Math.abs(b.height); });
+            var min = -max;
+
+            // Define empty color buffered attribute
+            if (material.vertexColors) geometry.setAttribute('color', new BufferAttribute(new Float32Array(geometry.attributes.position.count * 3), 3));
+
             for (var x = 0; x < options.segments + 1; x++) {
                 matrix.push([]);
                 for (var y = 0; y < options.segments + 1; y++) {
                     // Update height map with or without noise
                     var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
                     var z = this.getHeight(x, y, options);
-                    plane.geometry.attributes.position.array[index] = x;
-                    plane.geometry.attributes.position.array[index + 1] = y;
-                    plane.geometry.attributes.position.array[index + 2] = z;
+                    geometry.attributes.position.array[index] = x;
+                    geometry.attributes.position.array[index + 1] = y;
+                    geometry.attributes.position.array[index + 2] = z;
                     matrix[x].push(z);
+
+                    if (material.vertexColors) {
+                        // Set a buffer of vertex colors based on z-height
+                        geometry.attributes.color.array[index] = (z - min) / (max * 2);
+                        geometry.attributes.color.array[index + 1] = (z - min) / (max * 2);
+                        geometry.attributes.color.array[index + 2] = (z - min) / (max * 2);
+                    }
                 }
             }
         }
 
-        this.position.copy(options.position); // translate chunk position
-        plane.geometry.computeVertexNormals(); // Update normals
+        // Copy chunk position and update normals
+        this.position.copy(options.position);
+        geometry.computeVertexNormals();
 
         // Initialize rigid body
         this.body = new Body({
