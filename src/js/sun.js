@@ -8,7 +8,7 @@ class Sun extends Group {
         options = Object.assign({}, options);
 
         // Create directional light (shadow effect)
-        var colors = ['#ffffff', '#ffffff'];
+        var colors = ['#ffffff', '#00ffff'];
         this.direct = new DirectionalLight(colors, 0.5);
         this.direct.castShadow = true;
 
@@ -16,7 +16,7 @@ class Sun extends Group {
         this.hemisphere = new HemisphereLight(colors[0], '#000000', 0.5);
 
         // Update position
-        this.time = 9; // 12 = noon
+        this.time = 7; // 12 = noon
         this.speed = 0.25; // 1 rotation = 24 seconds
         this.updateSamples(512);
         this.updatePosition({ x: 0, y: 0, z: 0 });

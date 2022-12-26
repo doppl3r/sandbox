@@ -25,7 +25,7 @@ class Test {
         this.textRenderer = new HTMLRenderer();
 
         // Update camera options
-        this.camera.position.set(250, -250, 250);
+        this.camera.position.set(0, -250, 250);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
