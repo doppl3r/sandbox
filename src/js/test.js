@@ -1,4 +1,4 @@
-import { PerspectiveCamera, PCFSoftShadowMap, Scene, Vector3, WebGLRenderer } from 'three';
+import { Clock, PerspectiveCamera, PCFSoftShadowMap, Scene, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { PointerLockControls } from './PointerLockControls';
 import { HTMLRenderer, HTMLObject } from './CSS2DRenderer';
@@ -15,6 +15,13 @@ import { Background } from './background';
 class Test {
     constructor() {
         var _this = this;
+        this.clock = new Clock();
+        this.physicsDeltaSum = 0;
+        this.physicsTickRate = 30; // Calculations per second
+        this.physicsInterval = 1 / this.physicsTickRate;
+        this.renderDeltaSum = 0;
+        this.renderTickRate = -1; // Ex: 24 = 24fps, -1 = unlimited
+        this.renderInterval = 1 / this.renderTickRate;
         this.stats = new Stats();
         this.assets = new Assets();
         this.scene = new Scene();
@@ -40,14 +47,18 @@ class Test {
         document.body.appendChild(this.renderer.domElement);
         document.body.appendChild(this.textRenderer.domElement);
         document.body.appendChild(this.stats.dom);
-
+        
         // Add event listeners
+        document.addEventListener('visibilitychange', function(e) { _this.visibilityChange(); });
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
         window.addEventListener('click', function () { _this.controls.lock(); });
         
         this.world = new World({ gravity: new Vec3(0, 0, -9.82) });
         //this.debugger = new CannonDebugger(this.scene, this.world, { color: '#00ff00', scale: 1 });
         this.init();
+
+        // Add update loop (threejs built-in alternative to requestAnimationFrame)
+        this.renderer.setAnimationLoop(function() { _this.update(); });
     }
 
     init() {
@@ -79,12 +90,36 @@ class Test {
         });
     }
 
+    update() {
+        // Update time factors
+        var delta = this.clock.getDelta();
+        var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
+        
+        // Update engine on a lessor interval (improves performance)
+        this.physicsDeltaSum += delta;
+        if (this.physicsDeltaSum > this.physicsInterval) {
+            this.physicsDeltaSum %= this.physicsInterval; // reset with remainder
+            this.updatePhysics(this.physicsInterval);
+            alpha = 1; // Request new position from physics
+        }
+
+        // Refresh renderer on a higher (or unlimited) interval
+        this.renderDeltaSum += delta;
+        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0) {
+            this.renderDeltaSum %= this.renderInterval;
+            this.updateRender(delta, alpha);
+        }
+    }
+
     updatePhysics(interval) {
         this.stats.begin(); // Begin FPS counter
         this.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
     }
 
     updateRender(delta, alpha) {
+        // Set delta to target renderInterval
+        if (this.renderTickRate > 0) delta = this.renderInterval;
+
         // Loop through all child objects
         for (var i = 0; i < this.scene.children.length; i++) {
             var child = this.scene.children[i];
@@ -116,6 +151,23 @@ class Test {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
         this.textRenderer.setSize(width, height);
+    }
+
+    pause(play = false) {
+        this.play = play;
+        this.clock.stop();
+        this.clock.elapsedTimePaused = this.clock.getElapsedTime();
+    }
+
+    resume(play = true) {
+        this.play = play;
+        this.clock.start();
+        this.clock.elapsedTime = this.clock.elapsedTimePaused || 0;
+    }
+
+    visibilityChange() {
+        if (document.visibilityState == 'visible') this.resume(this.play);
+        else this.pause(this.play);
     }
 }
 
