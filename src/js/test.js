@@ -50,8 +50,8 @@ class Test {
         
         // Add event listeners
         document.addEventListener('visibilitychange', function(e) { _this.visibilityChange(); });
+        document.addEventListener('click', function () { _this.controls.lock(); });
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
-        window.addEventListener('click', function () { _this.controls.lock(); });
         
         this.world = new World({ gravity: new Vec3(0, 0, -9.82) });
         //this.debugger = new CannonDebugger(this.scene, this.world, { color: '#00ff00', scale: 1 });
