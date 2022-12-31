@@ -20,8 +20,9 @@ class PointerLockControls extends EventDispatcher {
 		this.movement.set(event.movementX, event.movementY);
 
 		// Fix Chrome jumping when mouse exits window range (known bug)
-		if (Math.abs(this.movement.x) > 100) { this.movement.x = this.movementPrevious.x; }
-		if (Math.abs(this.movement.y) > 100) { this.movement.y = this.movementPrevious.y; }
+		if (Math.abs(this.movement.x) > 250 || Math.abs(this.movement.y) > 250) {
+			this.movement.copy(this.movementPrevious);
+		}
 
 		// Update camera rotation
 		this.euler.setFromQuaternion( this.camera.quaternion );
