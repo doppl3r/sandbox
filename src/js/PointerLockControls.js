@@ -1,8 +1,5 @@
 // Modified from /three/examples/jsm/controls/PointerLockControls.js
-import { Euler, EventDispatcher, Vector3 } from 'three';
-
-const _euler = new Euler( 0, 0, 0, 'ZYX' );
-const _vector = new Vector3();
+import { Euler, EventDispatcher, Vector2 } from 'three';
 
 class PointerLockControls extends EventDispatcher {
 	constructor( camera, domElement ) {
@@ -10,30 +7,42 @@ class PointerLockControls extends EventDispatcher {
 		this.domElement = domElement;
 		this.isLocked = false;
 		this.camera = camera;
-		this.pointerSpeed = 0.5;
-		this.movementX = 0;
-		this.movementY = 0;
+		this.pointerSpeed = 1;
+		this.euler = new Euler(0, 0, 0, 'ZYX');
+		this.movement = new Vector2();
+		this.movementPrevious = new Vector2();
 		this.connect();
 	}
 
 	onMouseMove(event) {
 		if ( this.isLocked === false ) return;
-		this.xBefore = this.movementX;
-		this.yBefore = this.movementY;
-		this.movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-		this.movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+		this.movementPrevious.set(this.movement.x, this.movement.y);
+		this.movement.set(event.movementX, event.movementY);
 
-		_euler.setFromQuaternion( this.camera.quaternion );
-		_euler.z -= this.movementX * 0.002 * this.pointerSpeed;
-		_euler.x -= this.movementY * 0.002 * this.pointerSpeed;
+		// Fix Chrome jumping when mouse exits window range (known bug)
+		if (Math.abs(this.movement.x) > 100) { this.movement.x = this.movementPrevious.x; }
+		if (Math.abs(this.movement.y) > 100) { this.movement.y = this.movementPrevious.y; }
 
+		// Update camera rotation
+		this.euler.setFromQuaternion( this.camera.quaternion );
+		this.euler.z -= this.movement.x * 0.001 * this.pointerSpeed;
+		this.euler.x -= this.movement.y * 0.001 * this.pointerSpeed;
+		
 		// Lock vertical rotation
-		_euler.x = Math.max(0, Math.min(Math.PI, _euler.x));
+		this.euler.x = Math.max(0, Math.min(Math.PI, this.euler.x));
 
 		// Apply camera from Euler
-		this.camera.quaternion.setFromEuler( _euler );
+		this.camera.quaternion.setFromEuler(this.euler);
 		this.dispatchEvent({ type: 'change' });
 	}
+
+	lock() {
+		this.domElement.requestPointerLock();
+	};
+
+	unlock() {
+		this.domElement.ownerDocument.exitPointerLock();
+	};
 
 	onPointerlockChange() {
 		if ( this.domElement.ownerDocument.pointerLockElement === this.domElement ) {
@@ -61,40 +70,6 @@ class PointerLockControls extends EventDispatcher {
 		this.domElement.ownerDocument.removeEventListener( 'mousemove', function(e) { _this.onMouseMove(e); });
 		this.domElement.ownerDocument.removeEventListener( 'pointerlockchange', function(e) { _this.onPointerlockChange(e); });
 		this.domElement.ownerDocument.removeEventListener( 'pointerlockerror', function(e) { _this.onPointerlockError(e); });
-	};
-
-	dispose() {
-		this.disconnect();
-	};
-
-	getObject() { // retaining this method for backward compatibility
-		return camera;
-	};
-
-	getDirection() {
-		const direction = new Vector3( 0, 0, - 1 );
-		return function ( v ) {
-			return v.copy( direction ).applyQuaternion( this.camera.quaternion );
-		};
-	};
-
-	moveForward(distance) {
-		_vector.setFromMatrixColumn( this.camera.matrix, 0 );
-		_vector.crossVectors( this.camera.up, _vector );
-		this.camera.position.addScaledVector( _vector, distance );
-	};
-
-	moveRight(distance) {
-		_vector.setFromMatrixColumn( this.camera.matrix, 0 );
-		this.camera.position.addScaledVector( _vector, distance );
-	};
-
-	lock() {
-		this.domElement.requestPointerLock();
-	};
-
-	unlock() {
-		this.domElement.ownerDocument.exitPointerLock();
 	};
 }
 
