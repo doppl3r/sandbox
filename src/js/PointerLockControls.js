@@ -9,34 +9,45 @@ class PointerLockControls extends EventDispatcher {
 		this.camera = camera;
 		this.pointerSpeed = 1;
 		this.euler = new Euler(0, 0, 0, 'ZYX');
-		this.movementNew = new Vector2();
-		this.movementOld = new Vector2();
+		this.move = { old: new Vector2(), new: new Vector2() };
 		this.connect();
 	}
 
 	onMouseMove(e) {
-		if ( this.isLocked === false ) return;
-		this.movementOld.copy(this.movementNew);
-		this.movementNew.add({ x: e.movementX, y: e.movementY });
+		// Cancel movement if element is not locked
+		if (this.isLocked === false) return;
 
-		// Fix Chrome jumping when mouse exits window range (known bug)
+		// Copy from new coordinates if they do not equal zero
+		if (this.isMoving()) this.move.old.copy(this.move.new);
+		
+		// Add mouse coordinates. This allows the update function to apply input
+		this.move.new.add({ x: e.movementX, y: e.movementY });
+
+		// Fix Chrome jumping when mouse exits window range (known bug): 0.35% of screen width/height seems to be the sweet spot
 		if (Math.abs(e.movementX) > window.innerWidth / 3 || Math.abs(e.movementY) > window.innerHeight / 3) {
-			this.movementNew.copy(this.movementOld);
+			this.move.new.copy(this.move.old);
 		}
 	}
 
-	update(delta) {
-		// Update camera rotation
-		this.euler.setFromQuaternion( this.camera.quaternion );
-		this.euler.z -= this.movementNew.x * 0.001 * this.pointerSpeed;
-		this.euler.x -= this.movementNew.y * 0.001 * this.pointerSpeed;
-		
-		// Lock vertical rotation
-		this.euler.x = Math.max(0, Math.min(Math.PI, this.euler.x));
+	isMoving() {
+		return this.move.new.equals({ x: 0, y: 0 }) == false;		
+	}
 
-		// Apply camera from Euler
-		this.camera.quaternion.setFromEuler(this.euler);
-		this.movementNew.set(0, 0); // Reset pointer
+	update(delta) {
+		// Update camera if mouse is moving
+		if (this.isMoving()) {
+			// Update camera rotation
+			this.euler.setFromQuaternion( this.camera.quaternion );
+			this.euler.z -= this.move.new.x * 0.001 * this.pointerSpeed;
+			this.euler.x -= this.move.new.y * 0.001 * this.pointerSpeed;
+			
+			// Lock vertical rotation
+			this.euler.x = Math.max(0, Math.min(Math.PI, this.euler.x));
+	
+			// Apply camera from Euler
+			this.camera.quaternion.setFromEuler(this.euler);
+			this.move.new.set(0, 0); // Reset movement delta
+		}
 	}
 
 	lock() {
