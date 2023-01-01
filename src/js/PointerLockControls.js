@@ -20,7 +20,7 @@ class PointerLockControls extends EventDispatcher {
 		this.movement.set(event.movementX, event.movementY);
 
 		// Fix Chrome jumping when mouse exits window range (known bug)
-		if (Math.abs(this.movement.x) > 250 || Math.abs(this.movement.y) > 250) {
+		if (Math.abs(this.movement.x) > window.innerWidth / 3 || Math.abs(this.movement.y) > window.innerHeight / 3) {
 			this.movement.copy(this.movementPrevious);
 		}
 
