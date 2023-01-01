@@ -138,6 +138,9 @@ class Test {
         // Update sun orbit
         this.sun.update(delta);
 
+        // Update controls
+        this.controls.update(delta);
+
         // Render new scene
         this.renderer.render(this.scene, this.camera);
         this.textRenderer.render(this.scene, this.camera);

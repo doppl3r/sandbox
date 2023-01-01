@@ -9,49 +9,49 @@ class PointerLockControls extends EventDispatcher {
 		this.camera = camera;
 		this.pointerSpeed = 1;
 		this.euler = new Euler(0, 0, 0, 'ZYX');
-		this.movement = new Vector2();
-		this.movementPrevious = new Vector2();
+		this.movementNew = new Vector2();
+		this.movementOld = new Vector2();
 		this.connect();
 	}
 
-	onMouseMove(event) {
+	onMouseMove(e) {
 		if ( this.isLocked === false ) return;
-		this.movementPrevious.set(this.movement.x, this.movement.y);
-		this.movement.set(event.movementX, event.movementY);
+		this.movementOld.copy(this.movementNew);
+		this.movementNew.add({ x: e.movementX, y: e.movementY });
 
 		// Fix Chrome jumping when mouse exits window range (known bug)
-		if (Math.abs(this.movement.x) > window.innerWidth / 3 || Math.abs(this.movement.y) > window.innerHeight / 3) {
-			this.movement.copy(this.movementPrevious);
+		if (Math.abs(e.movementX) > window.innerWidth / 3 || Math.abs(e.movementY) > window.innerHeight / 3) {
+			this.movementNew.copy(this.movementOld);
 		}
+	}
 
+	update(delta) {
 		// Update camera rotation
 		this.euler.setFromQuaternion( this.camera.quaternion );
-		this.euler.z -= this.movement.x * 0.001 * this.pointerSpeed;
-		this.euler.x -= this.movement.y * 0.001 * this.pointerSpeed;
+		this.euler.z -= this.movementNew.x * 0.001 * this.pointerSpeed;
+		this.euler.x -= this.movementNew.y * 0.001 * this.pointerSpeed;
 		
 		// Lock vertical rotation
 		this.euler.x = Math.max(0, Math.min(Math.PI, this.euler.x));
 
 		// Apply camera from Euler
 		this.camera.quaternion.setFromEuler(this.euler);
-		this.dispatchEvent({ type: 'change' });
+		this.movementNew.set(0, 0); // Reset pointer
 	}
 
 	lock() {
 		this.domElement.requestPointerLock();
 	};
-
+	
 	unlock() {
 		this.domElement.ownerDocument.exitPointerLock();
 	};
 
 	onPointerlockChange() {
-		if ( this.domElement.ownerDocument.pointerLockElement === this.domElement ) {
-			this.dispatchEvent({ type: 'lock' });
+		if (this.domElement.ownerDocument.pointerLockElement === this.domElement) {
 			this.isLocked = true;
 		}
 		else {
-			this.dispatchEvent({ type: 'unlock' });
 			this.isLocked = false;
 		}
 	}
