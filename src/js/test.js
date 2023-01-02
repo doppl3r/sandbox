@@ -16,6 +16,7 @@ class Test {
     constructor() {
         var _this = this;
         this.clock = new Clock();
+        this.clock.scale = 1;
         this.physicsDeltaSum = 0;
         this.physicsTickRate = 30; // Calculations per second
         this.physicsInterval = 1 / this.physicsTickRate;
@@ -92,7 +93,7 @@ class Test {
 
     update() {
         // Update time factors
-        var delta = this.clock.getDelta();
+        var delta = this.clock.getDelta() * this.clock.scale;
         var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
         
         // Update engine on a lessor interval (improves performance)
