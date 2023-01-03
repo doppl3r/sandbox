@@ -36,7 +36,7 @@ class Sphere extends Group {
         this.interpolate = true;
     }
 
-    update(alpha, debug) {
+    update(delta, alpha, debug) {
         if (alpha == 1) {
             debug?.update(); // Update debugger
 

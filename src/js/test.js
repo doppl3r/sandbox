@@ -34,7 +34,7 @@ class Test {
         this.textRenderer = new HTMLRenderer();
 
         // Update camera options
-        this.camera.position.set(0, -250, 250);
+        this.camera.position.set(-80, -80, 80);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         //this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
@@ -68,6 +68,9 @@ class Test {
         this.assets.load(function() {
             // Add light to scene
             _this.scene.add(_this.sun);
+
+            // Add pointer controls body to world
+            _this.world.addBody(_this.controls.body);
     
             // Add shapes
             for (var i = 0; i < 100; i++) {
@@ -127,7 +130,7 @@ class Test {
 
             // Update 3D object to rigid body position
             if (child?.body?.type == 1) {
-                child.update(alpha, this.debugger);
+                child.update(delta, alpha, this.debugger);
             }
 
             // Update animations
@@ -140,7 +143,7 @@ class Test {
         this.sun.update(delta);
 
         // Update controls
-        this.controls.update(delta);
+        this.controls.update(delta, alpha);
 
         // Render new scene
         this.renderer.render(this.scene, this.camera);
