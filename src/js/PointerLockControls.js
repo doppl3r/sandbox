@@ -1,5 +1,5 @@
 // Modified from /three/examples/jsm/controls/PointerLockControls.js
-import { Euler, EventDispatcher, Vector3 } from 'three';
+import { Euler, EventDispatcher, Quaternion, Vector3 } from 'three';
 import { Body, Sphere, Material } from 'cannon-es';
 
 class PointerLockControls extends EventDispatcher {
@@ -11,7 +11,8 @@ class PointerLockControls extends EventDispatcher {
 		this.pointerSpeed = 1;
 		this.euler = new Euler(0, 0, 0, 'ZYX');
 		this.velocity = new Vector3();
-		this.move = { old: new Vector3(), new: new Vector3(), forward: false, right: false, backward: false, left: false, jump: false };
+		this.quaternion = new Quaternion();
+		this.move = { old: new Vector3(), new: new Vector3(), forward: false, right: false, backward: false, left: false, jump: false, speed: 10 };
 		
 		// Add physical body
 		this.radius = 2;
@@ -24,6 +25,7 @@ class PointerLockControls extends EventDispatcher {
 			shape: this.shape,
 			position: camera.position
 		});
+		this.body.velocity.clampScalar = this.velocity.clampScalar;
 
 		// Connect mouse controls
 		this.connect();
@@ -44,25 +46,29 @@ class PointerLockControls extends EventDispatcher {
 			this.camera.quaternion.setFromEuler(this.euler);
 			this.move.new.set(0, 0, 0); // Reset movement delta
 		}
-
-		// Reset input velocity and z-direction
-		this.velocity.set(0, 0, 0);
-		this.velocity.zDir = -Math.sign(this.euler.x - (Math.PI / 2)); // Resolve vertical reversal at 180deg
 		
-		// Convert velocity to world coordinates
-		if (this.move.forward == true) this.velocity.y = (0.125 * delta * 1000) * this.velocity.zDir;
-		if (this.move.right == true) this.velocity.x = (0.125 * delta * 1000);
-		if (this.move.backward == true) this.velocity.y = -(0.125 * delta * 1000) * this.velocity.zDir;
-		if (this.move.left == true) this.velocity.x = -(0.125 * delta * 1000);
 		
-		// Add new velocity to body
-		this.velocity.applyQuaternion(this.camera.quaternion);
-		this.body.velocity.x += this.velocity.x;
-		this.body.velocity.y += this.velocity.y;
 		
 		// Update camera position
 		if (alpha == 1) {
 			debug?.update(); // Update debugger
+
+			// Convert velocity to world coordinates
+			this.velocity.set(0, 0, 0);
+			if (this.move.forward == true) this.velocity.y = (0.5 * delta * 1000);
+			if (this.move.right == true) this.velocity.x = (0.5 * delta * 1000);
+			if (this.move.backward == true) this.velocity.y = -(0.5 * delta * 1000);
+			if (this.move.left == true) this.velocity.x = -(0.5 * delta * 1000);
+			
+			// Add new velocity to body
+			this.euler.x = 0; // Normalize direction speed by looking downward
+			this.quaternion.setFromEuler(this.euler);
+			this.velocity.applyQuaternion(this.quaternion);
+			this.body.applyImpulse({ x: this.velocity.x, y: this.velocity.y, z: 0 });
+
+			// Clamp velocity to movement speed
+			this.body.velocity.x = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.x));
+			this.body.velocity.y = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.y));
 
             // Set object position to previous body to capture missing frame
             this.camera.position.copy(this.body.previousPosition);
