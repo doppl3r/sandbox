@@ -20,8 +20,8 @@ class CameraControls {
 		this.material = new Material({ friction: 1, restitution: 0 });
 		this.body = new Body({
 			allowSleep: true,
-			angularDamping: 0.999,
-			fixedRotation: true,
+			angularDamping: 0.05,
+			fixedRotation: false,
 			linearDamping: 0.05,
 			mass: 5,
 			material: this.material,
@@ -62,8 +62,6 @@ class CameraControls {
 			this.move.new.set(0, 0, 0); // Reset movement delta
 		}
 		
-		
-		
 		// Update camera position
 		if (alpha == 1) {
 			debug?.update(); // Update debugger
@@ -75,11 +73,18 @@ class CameraControls {
 			if (this.move.backward == true) this.velocity.y = -(0.5 * delta * 1000);
 			if (this.move.left == true) this.velocity.x = -(0.5 * delta * 1000);
 			
-			// Add new velocity to body
+			// Apply camera rotation to velocity vector
 			this.euler.x = 0; // Normalize direction speed by looking downward
 			this.quaternion.setFromEuler(this.euler);
 			this.velocity.applyQuaternion(this.quaternion);
-			if (this.isMoving()) this.body.applyImpulse({ x: this.velocity.x, y: this.velocity.y, z: 0 });
+
+			if (this.body.jump == true) {
+				this.body.jump = false;
+				this.body.applyImpulse({ x: 0, y: 0, z: (5 * delta * 1000) });
+			}
+
+			// Apply velocity to body
+			if (this.isMoving()) this.body.applyImpulse({ x: this.velocity.x, y: this.velocity.y, z: this.velocity.z });
 
 			// Clamp velocity to movement speed
 			this.body.velocity.x = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.x));
@@ -128,7 +133,7 @@ class CameraControls {
 			case 'KeyD': case 'ArrowRight': this.move.right = true; break
 			case 'KeyS': case 'ArrowDown': this.move.backward = true; break
 			case 'KeyA': case 'ArrowLeft': this.move.left = true; break
-			case 'Space': this.move.jump = true; break
+			case 'Space': this.body.jump = true; break
 		}
 	}
 

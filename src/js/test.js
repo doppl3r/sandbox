@@ -27,7 +27,7 @@ class Test {
         this.assets = new Assets();
         this.scene = new Scene();
         this.background = new Background();
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 4000);
+        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 4000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -35,7 +35,7 @@ class Test {
 
         // Update camera options
         this.camera.position.set(-80, -80, 80);
-        this.camera.up = new Vector3(0, 0, 1);
+        this.camera.up.set(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         //this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls = new CameraControls(this.camera, document.body);
@@ -69,6 +69,13 @@ class Test {
         // Add model
         var _this = this;
         this.assets.load(function() {
+            // Add sword to camera
+            var sword = _this.assets.models.clone('sword');
+            sword.position.set(0.5, -0.5, -1.5);
+            sword.rotation.set(0, Math.PI * -0.25, Math.PI * -0.1);
+            _this.camera.add(sword);
+            _this.scene.add(_this.camera);
+
             // Add light to scene
             _this.scene.add(_this.sun);
 
