@@ -1,10 +1,10 @@
 // Modified from /three/examples/jsm/controls/PointerLockControls.js
-import { Euler, EventDispatcher, Quaternion, Vector3 } from 'three';
+import { Euler, Quaternion, Vector3 } from 'three';
 import { Body, Sphere, Material } from 'cannon-es';
 
-class PointerLockControls extends EventDispatcher {
+class CameraControls {
 	constructor(camera, domElement) {
-		super();
+		var _this = this;
 		this.domElement = domElement;
 		this.isLocked = false;
 		this.camera = camera;
@@ -17,13 +17,28 @@ class PointerLockControls extends EventDispatcher {
 		// Add physical body
 		this.radius = 2;
 		this.shape = new Sphere(this.radius);
-		this.material = new Material({ friction: 1, restitution: 0.05 });
+		this.material = new Material({ friction: 1, restitution: 0 });
 		this.body = new Body({
+			allowSleep: true,
+			angularDamping: 0.999,
+			fixedRotation: true,
 			linearDamping: 0.05,
 			mass: 5,
 			material: this.material,
+			position: camera.position,
 			shape: this.shape,
-			position: camera.position
+			sleepSpeedLimit: 1,
+			sleepTimeLimit: 0.1
+		});
+		this.body.addEventListener('sleep', function(e) {
+			var body = e.target;
+			body.fixedRotation = true;
+			body.updateMassProperties();
+		});
+		this.body.addEventListener('wakeup', function(e) {
+			var body = e.target;
+			body.fixedRotation = false;
+			body.updateMassProperties();
 		});
 		this.body.velocity.clampScalar = this.velocity.clampScalar;
 
@@ -33,7 +48,7 @@ class PointerLockControls extends EventDispatcher {
 
 	update(delta, alpha, debug) {
 		// Update camera rotation if mouse is moving
-		if (this.isMoving()) {
+		if (this.isLooking()) {
 			// Update camera rotation
 			this.euler.setFromQuaternion(this.camera.quaternion);
 			this.euler.z -= this.move.new.x * 0.001 * this.pointerSpeed;
@@ -64,7 +79,7 @@ class PointerLockControls extends EventDispatcher {
 			this.euler.x = 0; // Normalize direction speed by looking downward
 			this.quaternion.setFromEuler(this.euler);
 			this.velocity.applyQuaternion(this.quaternion);
-			this.body.applyImpulse({ x: this.velocity.x, y: this.velocity.y, z: 0 });
+			if (this.isMoving()) this.body.applyImpulse({ x: this.velocity.x, y: this.velocity.y, z: 0 });
 
 			// Clamp velocity to movement speed
 			this.body.velocity.x = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.x));
@@ -87,7 +102,7 @@ class PointerLockControls extends EventDispatcher {
 		if (this.isLocked === false) return;
 
 		// Copy from new coordinates if they do not equal zero
-		if (this.isMoving()) this.move.old.copy(this.move.new);
+		if (this.isLooking()) this.move.old.copy(this.move.new);
 		
 		// Add mouse coordinates. This allows the update function to apply input
 		this.move.new.add({ x: e.movementX, y: e.movementY });
@@ -98,8 +113,12 @@ class PointerLockControls extends EventDispatcher {
 		}
 	}
 
-	isMoving() {
+	isLooking() {
 		return this.move.new.equals({ x: 0, y: 0 }) == false;		
+	}
+
+	isMoving() {
+		return this.move.forward == true || this.move.right == true || this.move.backward == true || this.move.left == true;
 	}
 
 	onKeyDown(e) {
@@ -140,15 +159,10 @@ class PointerLockControls extends EventDispatcher {
 		}
 	}
 
-	onPointerlockError() {
-		console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
-	}
-
 	connect() {
 		var _this = this;
 		this.domElement.ownerDocument.addEventListener( 'mousemove', function(e) { _this.onMouseMove(e); });
 		this.domElement.ownerDocument.addEventListener( 'pointerlockchange', function(e) { _this.onPointerlockChange(e); });
-		this.domElement.ownerDocument.addEventListener( 'pointerlockerror', function(e) { _this.onPointerlockError(e); });
 		this.domElement.ownerDocument.addEventListener( 'keyup', function(e) { _this.onKeyUp(e); });
 		this.domElement.ownerDocument.addEventListener( 'keydown', function(e) { _this.onKeyDown(e); });
 	};
@@ -156,10 +170,9 @@ class PointerLockControls extends EventDispatcher {
 	disconnect() {
 		this.domElement.ownerDocument.removeEventListener( 'mousemove', function(e) { _this.onMouseMove(e); });
 		this.domElement.ownerDocument.removeEventListener( 'pointerlockchange', function(e) { _this.onPointerlockChange(e); });
-		this.domElement.ownerDocument.removeEventListener( 'pointerlockerror', function(e) { _this.onPointerlockError(e); });
 		this.domElement.ownerDocument.removeEventListener( 'keyup', function(e) { _this.onKeyUp(e); });
 		this.domElement.ownerDocument.removeEventListener( 'keydown', function(e) { _this.onKeyDown(e); });
 	};
 }
 
-export { PointerLockControls };
+export { CameraControls };
