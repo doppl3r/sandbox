@@ -1,5 +1,5 @@
 // Modified from /three/examples/jsm/controls/PointerLockControls.js
-import { Euler, Quaternion, Vector3 } from 'three';
+import { Euler, Vector3, Raycaster } from 'three';
 import { Body, Sphere, Material } from 'cannon-es';
 
 class CameraControls {
@@ -10,30 +10,31 @@ class CameraControls {
 		this.camera = camera;
 		this.pointerSpeed = 1;
 		this.euler = new Euler(0, 0, 0, 'ZYX');
+		this.raycaster = new Raycaster(new Vector3(0, 0, 0), new Vector3(0, 0, -1));
 		this.velocity = new Vector3();
-		this.quaternion = new Quaternion();
-		this.move = { old: new Vector3(), new: new Vector3(), forward: false, right: false, backward: false, left: false, jump: false, speed: 10 };
+		this.move = { old: new Vector3(), new: new Vector3(), forward: false, right: false, backward: false, left: false, up: false, speed: 10 };
 		
 		// Add physical body
 		this.radius = 2;
 		this.shape = new Sphere(this.radius);
-		this.material = new Material({ friction: 1, restitution: 0 });
+		this.material = new Material('wheel');
 		this.body = new Body({
 			allowSleep: true,
-			angularDamping: 0.05,
+			angularDamping: 0.75,
 			fixedRotation: false,
-			linearDamping: 0.05,
+			linearDamping: 0.75,
 			mass: 5,
 			material: this.material,
 			position: camera.position,
 			shape: this.shape,
-			sleepSpeedLimit: 1,
+			sleepSpeedLimit: 0.5,
 			sleepTimeLimit: 0.1
 		});
 		this.body.addEventListener('sleep', function(e) {
 			var body = e.target;
 			body.fixedRotation = true;
 			body.updateMassProperties();
+			if (_this.isGrounded() == false) body.wakeUp();
 		});
 		this.body.addEventListener('wakeup', function(e) {
 			var body = e.target;
@@ -75,16 +76,22 @@ class CameraControls {
 			
 			// Apply camera rotation to velocity vector
 			this.euler.x = 0; // Normalize direction speed by looking downward
-			this.quaternion.setFromEuler(this.euler);
-			this.velocity.applyQuaternion(this.quaternion);
+			this.velocity.applyEuler(this.euler);
 
-			if (this.body.jump == true) {
-				this.body.jump = false;
-				this.body.applyImpulse({ x: 0, y: 0, z: (5 * delta * 1000) });
+			// Jump if on the ground
+			if (this.move.up == true) {
+				if (this.isGrounded()) {
+					this.move.up = false;
+					this.velocity.z = 50;
+					//this.body.applyImpulse({ x: 0, y: 0, z:  });
+				}
+				else {
+					this.move.up = false;
+				}
 			}
 
 			// Apply velocity to body
-			if (this.isMoving()) this.body.applyImpulse({ x: this.velocity.x, y: this.velocity.y, z: this.velocity.z });
+			this.body.applyImpulse(this.velocity);
 
 			// Clamp velocity to movement speed
 			this.body.velocity.x = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.x));
@@ -126,6 +133,24 @@ class CameraControls {
 		return this.move.forward == true || this.move.right == true || this.move.backward == true || this.move.left == true;
 	}
 
+	isGrounded() {
+		this.raycaster.ray.origin.copy(this.body.position);
+		var objects = this.raycaster.intersectObjects(this.camera.parent.children);
+		var grounded = false;
+		for (var i = 0; i < objects.length; i++) {
+			var contact = objects[i];
+			var object = contact.object;
+			var parent = object.parent;
+			if (parent && parent.body) {
+				if (contact.distance < this.radius * 1.25) {
+					grounded = true;
+					break;
+				}
+			}
+		}
+		return grounded;
+	}
+
 	onKeyDown(e) {
 		if (this.isLocked === false) return;
 		switch(e.code) {
@@ -133,7 +158,7 @@ class CameraControls {
 			case 'KeyD': case 'ArrowRight': this.move.right = true; break
 			case 'KeyS': case 'ArrowDown': this.move.backward = true; break
 			case 'KeyA': case 'ArrowLeft': this.move.left = true; break
-			case 'Space': this.body.jump = true; break
+			case 'Space': this.move.up = true; break
 		}
 	}
 
