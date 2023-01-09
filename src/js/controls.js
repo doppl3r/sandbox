@@ -2,17 +2,22 @@
 import { Euler, Vector3, Raycaster } from 'three';
 import { Body, Sphere, Material } from 'cannon-es';
 
-class CameraControls {
+class Controls {
 	constructor(camera, domElement) {
 		var _this = this;
 		this.domElement = domElement;
 		this.isLocked = false;
 		this.camera = camera;
 		this.pointerSpeed = 1;
-		this.euler = new Euler(0, 0, 0, 'ZYX');
+		this.direction = new Euler(0, 0, 0, 'ZYX');
 		this.raycaster = new Raycaster(new Vector3(0, 0, 0), new Vector3(0, 0, -1));
 		this.velocity = new Vector3();
-		this.move = { old: new Vector3(), new: new Vector3(), forward: false, right: false, backward: false, left: false, up: false, speed: 10 };
+		this.keys = {}; // Keyboard input
+		this.move = {
+			old: new Vector3(),
+			new: new Vector3(),
+			speed: 10
+		};
 		
 		// Add physical body
 		this.radius = 2;
@@ -34,14 +39,12 @@ class CameraControls {
 			var body = e.target;
 			body.fixedRotation = true;
 			body.updateMassProperties();
-			if (_this.isGrounded() == false) body.wakeUp();
 		});
 		this.body.addEventListener('wakeup', function(e) {
 			var body = e.target;
 			body.fixedRotation = false;
 			body.updateMassProperties();
 		});
-		this.body.velocity.clampScalar = this.velocity.clampScalar;
 
 		// Connect mouse controls
 		this.connect();
@@ -51,15 +54,15 @@ class CameraControls {
 		// Update camera rotation if mouse is moving
 		if (this.isLooking()) {
 			// Update camera rotation
-			this.euler.setFromQuaternion(this.camera.quaternion);
-			this.euler.z -= this.move.new.x * 0.001 * this.pointerSpeed;
-			this.euler.x -= this.move.new.y * 0.001 * this.pointerSpeed;
+			this.direction.setFromQuaternion(this.camera.quaternion);
+			this.direction.z -= this.move.new.x * 0.001 * this.pointerSpeed;
+			this.direction.x -= this.move.new.y * 0.001 * this.pointerSpeed;
 			
 			// Lock vertical rotation
-			this.euler.x = Math.max(0, Math.min(Math.PI, this.euler.x));
+			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
 	
 			// Apply camera from Euler
-			this.camera.quaternion.setFromEuler(this.euler);
+			this.camera.quaternion.setFromEuler(this.direction);
 			this.move.new.set(0, 0, 0); // Reset movement delta
 		}
 		
@@ -69,24 +72,24 @@ class CameraControls {
 
 			// Convert velocity to world coordinates
 			this.velocity.set(0, 0, 0);
-			if (this.move.forward == true) this.velocity.y = (0.5 * delta * 1000);
-			if (this.move.right == true) this.velocity.x = (0.5 * delta * 1000);
-			if (this.move.backward == true) this.velocity.y = -(0.5 * delta * 1000);
-			if (this.move.left == true) this.velocity.x = -(0.5 * delta * 1000);
+			if (this.keys['KeyW'] == true) this.velocity.y = (0.5 * delta * 1000);
+			if (this.keys['KeyD'] == true) this.velocity.x = (0.5 * delta * 1000);
+			if (this.keys['KeyS'] == true) this.velocity.y = -(0.5 * delta * 1000);
+			if (this.keys['KeyA'] == true) this.velocity.x = -(0.5 * delta * 1000);
 			
 			// Apply camera rotation to velocity vector
-			this.euler.x = 0; // Normalize direction speed by looking downward
-			this.velocity.applyEuler(this.euler);
+			this.direction.x = 0; // Normalize direction speed by looking downward
+			this.velocity.applyEuler(this.direction);
 
 			// Jump if on the ground
-			if (this.move.up == true) {
+			if (this.keys['Space'] == true) {
 				if (this.isGrounded()) {
-					this.move.up = false;
+					this.keys['Space'] = false;
 					this.velocity.z = 50;
 					//this.body.applyImpulse({ x: 0, y: 0, z:  });
 				}
 				else {
-					this.move.up = false;
+					this.keys['Space'] = false;
 				}
 			}
 
@@ -130,7 +133,7 @@ class CameraControls {
 	}
 
 	isMoving() {
-		return this.move.forward == true || this.move.right == true || this.move.backward == true || this.move.left == true;
+		return this.keys['KeyW'] == true || this.keys['KeyD'] == true || this.keys['KeyS'] == true || this.keys['KeyA'] == true;
 	}
 
 	isGrounded() {
@@ -143,6 +146,7 @@ class CameraControls {
 			var parent = object.parent;
 			if (parent && parent.body) {
 				if (contact.distance < this.radius * 1.25) {
+					console.log(contact);
 					grounded = true;
 					break;
 				}
@@ -152,24 +156,11 @@ class CameraControls {
 	}
 
 	onKeyDown(e) {
-		if (this.isLocked === false) return;
-		switch(e.code) {
-			case 'KeyW': case 'ArrowUp': this.move.forward = true; break
-			case 'KeyD': case 'ArrowRight': this.move.right = true; break
-			case 'KeyS': case 'ArrowDown': this.move.backward = true; break
-			case 'KeyA': case 'ArrowLeft': this.move.left = true; break
-			case 'Space': this.move.up = true; break
-		}
+		this.keys[e.code] = true;
 	}
 
 	onKeyUp(e) {
-		if (this.isLocked === false) return;
-		switch(e.code) {
-			case 'KeyW': case 'ArrowUp': this.move.forward = false; break
-			case 'KeyD': case 'ArrowRight': this.move.right = false; break
-			case 'KeyS': case 'ArrowDown': this.move.backward = false; break
-			case 'KeyA': case 'ArrowLeft': this.move.left = false; break
-		}
+		this.keys[e.code] = false;
 	}
 
 	lock() {
@@ -205,4 +196,4 @@ class CameraControls {
 	};
 }
 
-export { CameraControls };
+export { Controls };

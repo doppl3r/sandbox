@@ -1,6 +1,6 @@
 import { Clock, PerspectiveCamera, PCFSoftShadowMap, Scene, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { CameraControls } from './CameraControls';
+import { Controls } from './controls';
 import { HTMLRenderer, HTMLObject } from './CSS2DRenderer';
 import CannonDebugger from 'cannon-es-debugger';
 import Stats from './stats.js';
@@ -38,7 +38,7 @@ class Test {
         this.camera.up.set(0, 0, 1);
         this.camera.lookAt(new Vector3(0, 0, 0));
         //this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls = new CameraControls(this.camera, document.body);
+        this.controls = new Controls(this.camera, document.body);
         this.resizeWindow();
 
         // Add light

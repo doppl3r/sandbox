@@ -1,4 +1,5 @@
 import { BufferAttribute, Color, Group, MeshStandardMaterial, Mesh, PlaneGeometry, RepeatWrapping } from 'three';
+import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
 import { Body, Heightfield, Material } from 'cannon-es';
 
 class Chunk extends Group {
@@ -21,6 +22,7 @@ class Chunk extends Group {
         var geometry = new PlaneGeometry(options.segments, options.segments, options.segments, options.segments);
         var material = new MeshStandardMaterial({ flatShading: true, vertexColors: true });
         var plane = new Mesh(geometry, material);
+        var helper = new VertexNormalsHelper(plane);
         
         // Add optional texture
         if (options.texture) {
@@ -86,6 +88,7 @@ class Chunk extends Group {
         // Copy chunk position and update normals
         this.position.copy(options.position);
         geometry.computeVertexNormals();
+        helper.update();
 
         // Initialize rigid body
         this.body = new Body({
