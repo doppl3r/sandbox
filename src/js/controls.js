@@ -4,20 +4,15 @@ import { Body, Sphere, Material } from 'cannon-es';
 
 class Controls {
 	constructor(camera, domElement) {
-		var _this = this;
 		this.domElement = domElement;
 		this.isLocked = false;
 		this.camera = camera;
-		this.pointerSpeed = 1;
 		this.direction = new Euler(0, 0, 0, 'ZYX');
-		this.raycaster = new Raycaster(new Vector3(0, 0, 0), new Vector3(0, 0, -1));
+		this.raycaster = new Raycaster(new Vector3(0, 0, 0), new Vector3(0, 0, -1), 0, 10);
 		this.velocity = new Vector3();
 		this.keys = {}; // Keyboard input
-		this.move = {
-			old: new Vector3(),
-			new: new Vector3(),
-			speed: 10
-		};
+		this.move = { old: new Vector3(), new: new Vector3() };
+		this.speed = { delta: 0, look: 1, move: 5 };
 		
 		// Add physical body
 		this.radius = 2;
@@ -25,9 +20,7 @@ class Controls {
 		this.material = new Material('wheel');
 		this.body = new Body({
 			allowSleep: true,
-			angularDamping: 0.75,
 			fixedRotation: false,
-			linearDamping: 0.75,
 			mass: 5,
 			material: this.material,
 			position: camera.position,
@@ -55,8 +48,8 @@ class Controls {
 		if (this.isLooking()) {
 			// Update camera rotation
 			this.direction.setFromQuaternion(this.camera.quaternion);
-			this.direction.z -= this.move.new.x * 0.001 * this.pointerSpeed;
-			this.direction.x -= this.move.new.y * 0.001 * this.pointerSpeed;
+			this.direction.z -= this.move.new.x * 0.001 * this.speed.look;
+			this.direction.x -= this.move.new.y * 0.001 * this.speed.look;
 			
 			// Lock vertical rotation
 			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
@@ -72,10 +65,11 @@ class Controls {
 
 			// Convert velocity to world coordinates
 			this.velocity.set(0, 0, 0);
-			if (this.keys['KeyW'] == true) this.velocity.y = (0.5 * delta * 1000);
-			if (this.keys['KeyD'] == true) this.velocity.x = (0.5 * delta * 1000);
-			if (this.keys['KeyS'] == true) this.velocity.y = -(0.5 * delta * 1000);
-			if (this.keys['KeyA'] == true) this.velocity.x = -(0.5 * delta * 1000);
+			this.speed.delta = (delta * 1000);
+			if (this.keys['KeyW'] == true) this.velocity.y = this.speed.delta;
+			if (this.keys['KeyD'] == true) this.velocity.x = this.speed.delta;
+			if (this.keys['KeyS'] == true) this.velocity.y = -this.speed.delta;
+			if (this.keys['KeyA'] == true) this.velocity.x = -this.speed.delta;
 			
 			// Apply camera rotation to velocity vector
 			this.direction.x = 0; // Normalize direction speed by looking downward
@@ -84,21 +78,31 @@ class Controls {
 			// Jump if on the ground
 			if (this.keys['Space'] == true) {
 				if (this.isGrounded()) {
+					// TODO: Prevent "holding" ultra jump
 					this.keys['Space'] = false;
-					this.velocity.z = 50;
-					//this.body.applyImpulse({ x: 0, y: 0, z:  });
+					this.body.applyImpulse({ x: 0, y: 0, z: 25 });
 				}
 				else {
 					this.keys['Space'] = false;
 				}
 			}
 
-			// Apply velocity to body
-			this.body.applyImpulse(this.velocity);
+			// Apply directional velocity to body
+			if (this.isMoving()) {
+				this.body.angularDamping = 0.75;
+				this.body.applyImpulse(this.velocity);
+			}
+			else {
+				this.body.angularDamping = 1; // Grip walls
+			}
 
-			// Clamp velocity to movement speed
-			this.body.velocity.x = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.x));
-			this.body.velocity.y = Math.max(-this.move.speed, Math.min(this.move.speed, this.body.velocity.y));
+			// Clamp body velocity speed
+			if (this.body.velocity.length() > this.speed.move) {
+				this.velocity.copy(this.body.velocity);
+				this.velocity.clampLength(-this.speed.move, this.speed.move);
+				this.body.velocity.x = this.velocity.x;
+				this.body.velocity.y = this.velocity.y;
+			}
 
             // Set object position to previous body to capture missing frame
             this.camera.position.copy(this.body.previousPosition);
@@ -137,18 +141,23 @@ class Controls {
 	}
 
 	isGrounded() {
-		this.raycaster.ray.origin.copy(this.body.position);
-		var objects = this.raycaster.intersectObjects(this.camera.parent.children);
 		var grounded = false;
-		for (var i = 0; i < objects.length; i++) {
-			var contact = objects[i];
-			var object = contact.object;
-			var parent = object.parent;
-			if (parent && parent.body) {
-				if (contact.distance < this.radius * 1.25) {
-					console.log(contact);
-					grounded = true;
-					break;
+
+		// Check scene
+		if (this.camera.parent) {
+			this.raycaster.ray.origin.copy(this.body.position);
+			var objects = this.raycaster.intersectObjects(this.camera.parent.children);
+			for (var i = 0; i < objects.length; i++) {
+				var contact = objects[i];
+				var object = contact.object;
+				var parent = object.parent;
+
+				// Must be on a 45deg slope
+				if (parent && parent.body) {
+					if (contact.distance < this.radius * 1.25) {
+						grounded = true;
+						break;
+					}
 				}
 			}
 		}

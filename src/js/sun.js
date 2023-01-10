@@ -17,7 +17,7 @@ class Sun extends Group {
 
         // Update position
         this.time = 7; // 12 = noon
-        this.speed = 0.25; // 1 rotation = 24 seconds
+        this.speed = 0.0625; // 1 rotation = 24 seconds
         this.updateSamples(512);
         this.updatePosition({ x: 0, y: 0, z: 0 });
         this.updateGraphic(colors, 128, 128);
