@@ -11,8 +11,8 @@ class Controls {
 		this.raycaster = new Raycaster(new Vector3(0, 0, 0), new Vector3(0, 0, -1), 0, 10);
 		this.velocity = new Vector3();
 		this.keys = {}; // Keyboard input
-		this.move = { old: new Vector3(), new: new Vector3() };
-		this.speed = { delta: 0, look: 1, move: 5 };
+		this.mouse = { old: new Vector3(), new: new Vector3() };
+		this.speed = { delta: 0, look: 1, move: { acceleration: 1, max: 5 } };
 		
 		// Add physical body
 		this.radius = 2;
@@ -21,7 +21,8 @@ class Controls {
 		this.body = new Body({
 			allowSleep: true,
 			fixedRotation: false,
-			mass: 5,
+			linearDamping: 0,
+			mass: 10,
 			material: this.material,
 			position: camera.position,
 			shape: this.shape,
@@ -48,15 +49,15 @@ class Controls {
 		if (this.isLooking()) {
 			// Update camera rotation
 			this.direction.setFromQuaternion(this.camera.quaternion);
-			this.direction.z -= this.move.new.x * 0.001 * this.speed.look;
-			this.direction.x -= this.move.new.y * 0.001 * this.speed.look;
+			this.direction.z -= this.mouse.new.x * 0.001 * this.speed.look;
+			this.direction.x -= this.mouse.new.y * 0.001 * this.speed.look;
 			
 			// Lock vertical rotation
 			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
 	
 			// Apply camera from Euler
 			this.camera.quaternion.setFromEuler(this.direction);
-			this.move.new.set(0, 0, 0); // Reset movement delta
+			this.mouse.new.set(0, 0, 0); // Reset movement delta
 		}
 		
 		// Update camera position
@@ -65,7 +66,7 @@ class Controls {
 
 			// Convert velocity to world coordinates
 			this.velocity.set(0, 0, 0);
-			this.speed.delta = (delta * 1000);
+			this.speed.delta = (delta * 1000 * this.speed.move.acceleration);
 			if (this.keys['KeyW'] == true) this.velocity.y = this.speed.delta;
 			if (this.keys['KeyD'] == true) this.velocity.x = this.speed.delta;
 			if (this.keys['KeyS'] == true) this.velocity.y = -this.speed.delta;
@@ -78,9 +79,8 @@ class Controls {
 			// Jump if on the ground
 			if (this.keys['Space'] == true) {
 				if (this.isGrounded()) {
-					// TODO: Prevent "holding" ultra jump
 					this.keys['Space'] = false;
-					this.body.applyImpulse({ x: 0, y: 0, z: 25 });
+					this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
 				}
 				else {
 					this.keys['Space'] = false;
@@ -97,9 +97,9 @@ class Controls {
 			}
 
 			// Clamp body velocity speed
-			if (this.body.velocity.length() > this.speed.move) {
+			if (this.body.velocity.length() > this.speed.move.max) {
 				this.velocity.copy(this.body.velocity);
-				this.velocity.clampLength(-this.speed.move, this.speed.move);
+				this.velocity.clampLength(-this.speed.move.max, this.speed.move.max);
 				this.body.velocity.x = this.velocity.x;
 				this.body.velocity.y = this.velocity.y;
 			}
@@ -121,19 +121,19 @@ class Controls {
 		if (this.isLocked === false) return;
 
 		// Copy from new coordinates if they do not equal zero
-		if (this.isLooking()) this.move.old.copy(this.move.new);
+		if (this.isLooking()) this.mouse.old.copy(this.mouse.new);
 		
 		// Add mouse coordinates. This allows the update function to apply input
-		this.move.new.add({ x: e.movementX, y: e.movementY });
+		this.mouse.new.add({ x: e.movementX, y: e.movementY });
 
 		// Fix Chrome jumping when mouse exits window range (known bug): 0.35% of screen width/height seems to be the sweet spot
 		if (Math.abs(e.movementX) > window.innerWidth / 3 || Math.abs(e.movementY) > window.innerHeight / 3) {
-			this.move.new.copy(this.move.old);
+			this.mouse.new.copy(this.mouse.old);
 		}
 	}
 
 	isLooking() {
-		return this.move.new.equals({ x: 0, y: 0 }) == false;		
+		return this.mouse.new.equals({ x: 0, y: 0 }) == false;		
 	}
 
 	isMoving() {
@@ -146,17 +146,21 @@ class Controls {
 		// Check scene
 		if (this.camera.parent) {
 			this.raycaster.ray.origin.copy(this.body.position);
-			var objects = this.raycaster.intersectObjects(this.camera.parent.children);
-			for (var i = 0; i < objects.length; i++) {
-				var contact = objects[i];
+			var contact = this.raycaster.intersectObjects(this.camera.parent.children)[0];
+			
+			if (contact) {
+				var face = contact.face;
+				var normal = face.normal;
 				var object = contact.object;
 				var parent = object.parent;
+				var angle = normal.angleTo(this.velocity);
 
-				// Must be on a 45deg slope
+				
+				// Must have a physical body
 				if (parent && parent.body) {
+					// Must be close to the contact point
 					if (contact.distance < this.radius * 1.25) {
 						grounded = true;
-						break;
 					}
 				}
 			}
@@ -165,6 +169,7 @@ class Controls {
 	}
 
 	onKeyDown(e) {
+		if (e.repeat) return;
 		this.keys[e.code] = true;
 	}
 
