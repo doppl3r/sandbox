@@ -5,6 +5,7 @@ import { HTMLRenderer, HTMLObject } from './CSS2DRenderer';
 import CannonDebugger from 'cannon-es-debugger';
 import Stats from './stats.js';
 import { World, Vec3 } from 'cannon-es';
+import { Environment } from './environment';
 import { Sun } from './sun';
 import { Assets } from './assets';
 import { Cube } from './cube';
@@ -27,7 +28,7 @@ class Test {
         this.assets = new Assets();
         this.scene = new Scene();
         this.background = new Background();
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 4000);
+        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 4000);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -54,6 +55,7 @@ class Test {
         document.addEventListener('click', function () { _this.controls.lock(); });
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
         
+        this.env = new Environment();
         this.world = new World({
             allowSleep: true,
             gravity: new Vec3(0, 0, -9.82)
@@ -71,7 +73,7 @@ class Test {
         this.assets.load(function() {
             // Add sword to camera
             var sword = _this.assets.models.clone('sword');
-            sword.position.set(0.5, -0.5, -1.5);
+            sword.position.set(0.5, -0.5, -0.75);
             sword.rotation.set(0, Math.PI * -0.25, Math.PI * -0.1);
             _this.camera.add(sword);
             _this.scene.add(_this.camera);

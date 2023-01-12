@@ -11,24 +11,29 @@ class Terrain extends Group {
         this.name = 'terrain';
 
         // Merge options
-        options = Object.assign({ segments: 32 }, options);
+        options = Object.assign({ segments: 32, elementSize: 1 }, options);
 
         // Merge options
         var seed = 'doppler';
         this.noises = [
-            new Noise({ seed: seed + 'ground', resolution: 0.1, height: 3 }),
-            new Noise({ seed: seed + 'mountain', resolution: 0.0085, height: 50 })
+            new Noise({ seed: seed + 'ground', resolution: 0.1 / options.elementSize, height: 3 }),
+            new Noise({ seed: seed + 'mountain', resolution: 0.0085 / options.elementSize, height: 50 })
         ];
         this.segments = options.segments;
+        this.elementSize = options.elementSize;
         if (options.world) this.world = options.world;
         if (options.assets) this.assets = options.assets;
         
         // Add default chunks
-        var rows = 4;
-        var cols = 4;
-        for (var x = -options.segments * cols; x < options.segments * cols; x += this.segments) {
-            for (var y = -options.segments * rows; y < options.segments * rows; y += this.segments) {
-                this.addChunk({ x: x, y: y, z: 0 });
+        var rows = 8;
+        var cols = 8;
+        for (var col = 0; col < cols; col++) {
+            for (var row = 0; row < rows; row++) {
+                this.addChunk({
+                    x: ((col * options.segments) - ((cols / 2) * options.segments)) * options.elementSize,
+                    y: ((row * options.segments) - ((rows / 2) * options.segments)) * options.elementSize,
+                    z: 0
+                });
             }
         }
     }
@@ -43,6 +48,7 @@ class Terrain extends Group {
             // Define new chunk
             chunk = new Chunk({
                 segments: this.segments,
+                elementSize: this.elementSize,
                 noise: this.noises,
                 position: position
             });
@@ -82,9 +88,9 @@ class Terrain extends Group {
     }
 
     snapPosition(position) {
-        position.x = Math.floor(position.x / this.segments) * this.segments;
-        position.y = Math.floor(position.y / this.segments) * this.segments;
-        position.z = Math.floor(position.z / this.segments) * this.segments;
+        position.x = Math.floor(position.x / (this.segments * this.elementSize)) * (this.segments * this.elementSize);
+        position.y = Math.floor(position.y / (this.segments * this.elementSize)) * (this.segments * this.elementSize);
+        position.z = Math.floor(position.z / (this.segments * this.elementSize)) * (this.segments * this.elementSize);
     }
 }
 

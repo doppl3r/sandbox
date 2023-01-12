@@ -1,4 +1,7 @@
 {
+    "world-dungeon": {
+        "url": "./glb/world-dungeon.glb"
+    },
     "guide": {
         "url": "./glb/guide.glb",
         "userData": {

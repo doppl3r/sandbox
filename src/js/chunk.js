@@ -15,11 +15,12 @@ class Chunk extends Group {
                 z: 0
             },
             segments: 16,
+            elementSize: 0.5,
             type: Body.STATIC
         }, options);
         
         // Create mesh geometry
-        var geometry = new PlaneGeometry(options.segments, options.segments, options.segments, options.segments);
+        var geometry = new PlaneGeometry(options.segments * options.elementSize, options.segments * options.elementSize, options.segments, options.segments);
         var material = new MeshStandardMaterial({ flatShading: true, vertexColors: true });
         var plane = new Mesh(geometry, material);
         var helper = new VertexNormalsHelper(plane);
@@ -42,7 +43,7 @@ class Chunk extends Group {
         if (options.noise) {
             var matrix = [];
             var bufferItemSize = geometry.attributes.position.itemSize;
-            var max = options.noise.reduce(function(a, b) { return Math.abs(a.height) + Math.abs(b.height); });
+            var max = options.noise.reduce(function(a, b) { return Math.abs(a.height) + Math.abs(b.height); }) * options.elementSize;
             var colors = ['#0000ff', '#00ffff', '#00ff00', '#ffff00', '#ff0000'];
             var color_one = new Color();
             var color_two = new Color();
@@ -51,19 +52,21 @@ class Chunk extends Group {
             // Define empty color buffered attribute
             if (material.vertexColors) geometry.setAttribute('color', new BufferAttribute(new Float32Array(geometry.attributes.position.count * 3), 3));
 
-            for (var x = 0; x < options.segments + 1; x++) {
+            for (var col = 0; col < options.segments + 1; col++) {
                 matrix.push([]);
-                for (var y = 0; y < options.segments + 1; y++) {
+                for (var row = 0; row < options.segments + 1; row++) {
                     // Update height map with or without noise
-                    var index = bufferItemSize * (x * (options.segments + 1) + y); // Buffer Index
-                    var z = this.getHeight(x, y, options);
+                    var index = bufferItemSize * (col * (options.segments + 1) + row); // Buffer Index
+                    var x = col * options.elementSize;
+                    var y = row * options.elementSize;
+                    var z = this.getHeight(x, y, options) * options.elementSize;
                     var alpha = (z + max) / (max * 2); // vertex color alpha
 
                     // Update vertex position
                     geometry.attributes.position.array[index] = x;
                     geometry.attributes.position.array[index + 1] = y;
                     geometry.attributes.position.array[index + 2] = z;
-                    matrix[x].push(z);
+                    matrix[col].push(z);
 
                     if (material.vertexColors) {
                         // Define vertex color index and alpha value
@@ -94,7 +97,7 @@ class Chunk extends Group {
         this.body = new Body({
             type: options.type,
             material: new Material({ friction: 0.05, restitution: 1 }),
-            shape: new Heightfield(matrix, { elementSize: 1 })
+            shape: new Heightfield(matrix, { elementSize: options.elementSize })
         });
         this.body.position.copy(options.position);
     }
