@@ -1,10 +1,7 @@
 import { Clock, PerspectiveCamera, PCFSoftShadowMap, Scene, Vector3, WebGLRenderer } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Controls } from './controls';
 import { HTMLRenderer, HTMLObject } from './CSS2DRenderer';
-import CannonDebugger from 'cannon-es-debugger';
 import Stats from './stats.js';
-import { World, Vec3 } from 'cannon-es';
 import { Environment } from './environment';
 import { Sun } from './sun';
 import { Assets } from './assets';
@@ -56,11 +53,8 @@ class Test {
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
         
         this.env = new Environment();
-        this.world = new World({
-            allowSleep: true,
-            gravity: new Vec3(0, 0, -9.82)
-        });
-        //this.debugger = new CannonDebugger(this.scene, this.world, { color: '#00ff00', scale: 1 });
+        
+        // Load everything
         this.init();
 
         // Add update loop (threejs built-in alternative to requestAnimationFrame)
@@ -71,6 +65,10 @@ class Test {
         // Add model
         var _this = this;
         this.assets.load(function() {
+            // Add environment
+            _this.env.init(_this.assets);
+            _this.scene.add(_this.env);
+
             // Add sword to camera
             var sword = _this.assets.models.clone('sword');
             sword.position.set(0.5, -0.5, -0.75);
@@ -82,7 +80,7 @@ class Test {
             _this.scene.add(_this.sun);
 
             // Add pointer controls body to world
-            _this.world.addBody(_this.controls.body);
+            _this.env.world.addBody(_this.controls.body);
     
             // Add shapes
             for (var i = 0; i < 100; i++) {
@@ -97,11 +95,11 @@ class Test {
                 object.setPosition(x, y, 10 + z);
                 //object.add(text);
                 _this.scene.add(object); // Add 3D object to scene
-                _this.world.addBody(object.body); // Add 
+                _this.env.world.addBody(object.body); // Add 
             }
     
             // Add Terrain
-            _this.terrain = new Terrain({ world: _this.world, assets: _this.assets });
+            _this.terrain = new Terrain({ world: _this.env.world, assets: _this.assets });
             _this.scene.add(_this.terrain);
         });
     }
@@ -129,7 +127,7 @@ class Test {
 
     updatePhysics(interval) {
         this.stats.begin(); // Begin FPS counter
-        this.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
+        this.env.world.step(interval); // ex: 1 / 60 =  60fps (~16ms)
     }
 
     updateRender(delta, alpha) {

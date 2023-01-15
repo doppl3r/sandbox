@@ -17,7 +17,7 @@ class Controls {
 		// Add physical body
 		this.radius = 2;
 		this.shape = new Sphere(this.radius);
-		this.material = new Material('wheel');
+		this.material = new Material({ friction: -1, restitution: -1 });
 		this.body = new Body({
 			allowSleep: true,
 			fixedRotation: false,
