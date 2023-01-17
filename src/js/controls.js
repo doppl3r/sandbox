@@ -15,7 +15,7 @@ class Controls {
 		this.speed = { delta: 0, look: 1, move: { acceleration: 1, max: 5 } };
 		
 		// Add physical body
-		this.radius = 2;
+		this.radius = 0.5;
 		this.shape = new Sphere(this.radius);
 		this.material = new Material({ friction: -1, restitution: -1 });
 		this.body = new Body({
@@ -154,10 +154,9 @@ class Controls {
 				var object = contact.object;
 				var parent = object.parent;
 				var angle = normal.angleTo(this.velocity);
-
 				
 				// Must have a physical body
-				if (parent && parent.body) {
+				if (parent) {
 					// Must be close to the contact point
 					if (contact.distance < this.radius * 1.25) {
 						grounded = true;
